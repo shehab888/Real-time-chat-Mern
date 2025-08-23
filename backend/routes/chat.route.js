@@ -2,9 +2,8 @@ const express = require("express");
 
 const router = express.Router();
 
-const userController = require("../controllers/user.controller");
+const chatController = require("../controllers/chat.controller");
 
 const Auth = require("../middlewares/Auth");
-
 
 module.exports=router;

@@ -1,6 +1,6 @@
-const Chat = require('../models/Chat');
-const Message = require('../models/Message');
-const User = require('../models/User');
+const Chat = require('../models/chat.model');
+const Message = require('../models/message.model');
+const User = require('../models/user.model');
 
 // GET /api/chats
 const getAllChats = async (req, res) => {

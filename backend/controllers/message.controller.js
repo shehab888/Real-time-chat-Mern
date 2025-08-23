@@ -1,6 +1,6 @@
 
-const Message = require('../models/Message');
-const Chat = require('../models/Chat');
+const Message = require('../models/message.model');
+const Chat = require('../models/chat.model');
 
 // GET /api/messages/:chatId
 const getChatMessages = async (req, res) => {
