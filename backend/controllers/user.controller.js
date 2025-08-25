@@ -20,7 +20,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-//? POST /api/users/search
+//? POST /api/users/search?=
 const searchUsers = async (req, res) => {
   try {
     
@@ -30,7 +30,7 @@ const searchUsers = async (req, res) => {
   }
 };
 
-// GET /api/users/friends
+//? GET /api/users/friends
 const getFriends = async (req, res) => {
   try {
   
@@ -41,7 +41,7 @@ const getFriends = async (req, res) => {
 };
 
 
-// DELETE /api/users/friend/:friendId
+//? DELETE /api/users/friend/:friendId
 const removeFriend = async (req, res) => {
     try {
         

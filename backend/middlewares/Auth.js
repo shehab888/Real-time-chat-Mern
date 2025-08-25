@@ -30,6 +30,9 @@ const Auth = async (req, res, next) => {
           message: "UN AUTHORIZED - no user founded by this token",
         });
     }
+    if(!user.isVerified){
+      return res.status(403).json({status:httpStatus.FORBIDEN,message:"the user did not verified their email"})
+    }
 
     req.user = user;
     req.userId = user._id;
