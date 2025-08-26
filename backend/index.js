@@ -11,6 +11,7 @@ const authRouter=require('./routes/auth.route')
 const userRouter=require('./routes/user.route')
 const messageRouter=require('./routes/message.route')
 const chatRouter=require('./routes/chat.route')
+const Auth = require('./middlewares/Auth')
 
 //?Servers Intialization
 const app = express()
@@ -24,7 +25,8 @@ app.use(cookieParser())
 app.use(express.json())
 //? Routes
 app.use('/api/auth',authRouter)
-app.use('api/user',userRouter)
+app.use(Auth)
+app.use('/api/user',userRouter)
 app.use('/api/message',messageRouter)
 app.use('/api/chat',chatRouter)
 

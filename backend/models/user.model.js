@@ -49,15 +49,24 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    lastSeen: {
-      type: Date,
-      default: Date.now,
-    },
     friends: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
+        customName: {
+          type: String,
+          required: true,
+          trim: true,
+        },
+        addedAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
+      {_id:false}
     ],
     blockedUsers: [
       {
@@ -77,6 +86,23 @@ const userSchema = new mongoose.Schema(
         ref: "Chat",
       },
     ],
+    privacy: {
+      lastSeen: {
+        type: String,
+        enum: ["everyone", "contacts", "nobody"],
+        default: "everyone",
+      },
+      profilePhoto: {
+        type: String,
+        enum: ["everyone", "contacts", "nobody"],
+        default: "everyone",
+      },
+      about: {
+        type: String,
+        enum: ["everyone", "contacts", "nobody"],
+        default: "everyone",
+      },
+    },
   },
   {
     timestamps: true,

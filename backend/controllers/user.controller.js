@@ -1,138 +1,252 @@
-const User = require('../models/user.model');
+const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const httpStatus = require("../utils/httpStatus");
+const sendEmail = require("../utils/sendEmail");
 
-//? GET /api/users/profile/:userId
+//? GET /api/user/profile/:userId
 const getUserProfile = async (req, res) => {
   try {
-  
-    
+    const { userId } = req.params;
+    const user = await User.findById(userId).select(
+      "username email profilePicture bio isOnline lastSeen"
+    );
+    if (!user) {
+      return res.status(404).json({
+        status: httpStatus.FAIL,
+        message: "no user profile founded by this id ",
+      });
+    }
+    return res.status(200).json({ status: httpStatus.SUCCESS, data: user });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ status: httpStatus.ERROR, message: error.message });
   }
 };
 
-//? PUT /api/users/profile
+//? PATCH /api/user/profile
 const updateProfile = async (req, res) => {
   try {
-   
-    
+    const user = req.user;
+    const reqBody = req.body; //! we can change email but don't to forget to check is verified or not (in future we can implement)
+    console.log(reqBody);
+
+    //? update the request to make the user limit to change the allowed field only (username,password,bio,profilePicture)
+    const filteredRequestBody = Object.fromEntries(
+      Object.entries(reqBody).filter(
+        ([key]) =>
+          key == "username" ||
+          key == "bio" ||
+          key == "password" ||
+          key == "profilePicture"
+      )
+    );
+    console.log("filteredRequestBody", { ...filteredRequestBody });
+
+    //? make the password bcrytpted
+
+    if (filteredRequestBody.password) {
+      //? check the validation of the password
+      if (filteredRequestBody.password.length < 8) {
+        return res.status(400).json({
+          status: httpStatus.FAIL,
+          message: "the password is invalid",
+        });
+      }
+      filteredRequestBody.password = await bcrypt.hash(
+        filteredRequestBody.password,
+        10
+      );
+    }
+    // console.log('*******************************');
+
+    await User.updateOne({ _id: user._id }, { ...filteredRequestBody });
+    return res.status(200).json({
+      status: httpStatus.SUCCESS,
+      message: "the user updated their info successfuly",
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-//? POST /api/users/search?=
-const searchUsers = async (req, res) => {
+//? POST /api/user/search?=        (I WANT TO IMPLEMENT SEARCH FOR MESSAEGS AND CHAT AND ANOTHER FOR THE USER)
+const searchuser = async (req, res) => {
   try {
-    
-    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-//? GET /api/users/friends
+//? POST /api/user/friends
+const addFriends = async (req, res) => {
+  try {
+    const currentUser = req.user;
+    const { email, customName } = req.body;
+    const freind = await User.findOne({ email: email });
+    if (!freind) {
+      return res.status(404).json({
+        status: httpStatus.FAIL,
+        message: "no user found by this email",
+      });
+    }
+    if (freind.email == currentUser.email) {
+      return res.status(404).status({
+        status: httpStatus.FAIL,
+        message: "you can not add yourself as a freind",
+      });
+    }
+    await User.updateOne(
+      { _id: currentUser._id },
+      { $addToSet: { friends: { user: freind._id, customName } } }
+    );
+    return res.status(201).json({
+      status: httpStatus.SUCCESS,
+      message: "you added your friend successfuly",
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//? GET /api/user/friends
 const getFriends = async (req, res) => {
   try {
-  
-    
+    const currentUser = req.user;
+    const friends = await User.findOne({ _id: currentUser._id })
+      .select("friends")
+      .populate({ path: "friends.user", select: "username email bio" });
+    return res.status(200).json({ status: httpStatus.SUCCESS, data: friends });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+//? PATCH /api/user/friends/:friendId
+const updateFriends = async (req, res) => {
+  try {
+    const currentUser = req.user;
+    const {friendId} = req.params;
+    const { customName } = req.body;
+    const friend = await User.findOne({ _id: friendId });
+    if (!friend) {
+      return res
+        .status(404)
+        .json({ status: httpStatus.FAIL, message: "no user found by this id" });
+    }
+    await User.updateOne(
+      { _id: currentUser._id, "friends.user": friendId },
+      { $set: { "friends.$.customName": customName } }
+    );
 
-//? DELETE /api/users/friend/:friendId
+    return res.status(201).json({
+      status: httpStatus.SUCCESS,
+      message: "you updated your friend's data successfuly",
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//? DELETE /api/user/friend/:friendId
+//! the blocked freind (do we remove it from the freinds ?)
 const removeFriend = async (req, res) => {
-    try {
-        
-        
+  try {
+    const currentUser = req.user;
+    const {friendId} = req.params;
+    console.log('friendId',friendId);
+    
+    const friend = await User.findById(friendId);
+    console.log('friend',friend);
+    if (!friend) {
+      return res
+        .status(404)
+        .json({ status: httpStatus.FAIL, message: "no user found by this id" });
+    }
+    
+    await User.updateOne(
+      { _id: currentUser._id },
+      { $pull: { friends: { user: friend._id } } }
+    );
+
+    return res.status(201).json({
+      status: httpStatus.SUCCESS,
+      message: "you removed your friend's data successfuly",
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-//? POST /api/users/block/:userId
+//? POST /api/user/block/:userId
 const blockUser = async (req, res) => {
   try {
-    
-    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-//? POST /api/users/unblock/:userId
+//? POST /api/user/unblock/:userId
 const unblockUser = async (req, res) => {
   try {
-    
-    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-//? GET /api/users/blocked
+//? GET /api/user/blocked
 const getBlockedUsers = async (req, res) => {
   try {
-    
-    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-//? PUT /api/users/online-status
+//? PUT /api/user/online-status
 const updateOnlineStatus = async (req, res) => {
   try {
-      
-      
-} catch (error) {
+  } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
 //! methods can be applied in the future
 
-//? POST /api/users/friend-request/:userId
+//? POST /api/user/friend-request/:userId
 // const sendFriendRequest = async (req, res) => {
 //   try {
 
-    
 //   } catch (error) {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
 
-//? POST /api/users/friend-request/:requestId/accept
+//? POST /api/user/friend-request/:requestId/accept
 // const acceptFriendRequest = async (req, res) => {
 //   try {
 
-    
 //   } catch (error) {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
 
-//? POST /api/users/friend-request/:requestId/decline
+//? POST /api/user/friend-request/:requestId/decline
 // const declineFriendRequest = async (req, res) => {
 //   try {
 
-    
 //   } catch (error) {
 //     res.status(500).json({ error: error.message });
 //   }
 // };
 module.exports = {
-  getUserProfile,
-  updateProfile,
-  searchUsers,
-  getFriends,
-  removeFriend,
+  getUserProfile, //done
+  updateProfile, //done
+  searchuser,
   blockUser,
   unblockUser,
   getBlockedUsers,
-  updateOnlineStatus
-  //?   sendFriendRequest,
-  //?   acceptFriendRequest,
-  //?   declineFriendRequest,
+  updateOnlineStatus,
+  addFriends, //done
+  getFriends, //done
+  removeFriend, //done
+  updateFriends, //done
 };

@@ -36,14 +36,15 @@ const register = async (req, res) => {
       maxAge: 15 * 60 * 1000,
     });
     const url = `${process.env.CLIENT_URL}/api/auth/verify-email/${email_verify_token}`;
+    // req.userEmail=newUser.email
+    //? save the user in the db before the sent of the email to check if something of the data repeated like email or not
+    await newUser.save();
+    
     await sendEmail(
       newUser.email,
       "verify the email",
       `<p>click <a href=${url}>here</a> to verify your email</p>`
     );
-    // req.userEmail=newUser.email
-    //? save the user in the db
-    await newUser.save();
 
     return res
       .status(201)
@@ -67,7 +68,7 @@ const login = async (req, res) => {
     }
     // console.log('************');
 
-    const user = await User.findOne({ email: email });
+    const user = await User.findOne({ email: email }).select({privacy:false});
     console.log(user);
 
     if (!user) {
@@ -83,13 +84,14 @@ const login = async (req, res) => {
         message: "email or password is not correct",
       });
     }
-    //? check the user verification
-    if (!user.isVerified) {
-      return res.status(403).json({
-        status: httpStatus.FORBIDEN,
-        message: "the user did not verified their email",
-      });
-    }
+    //? check the user verification 
+    //! not enabled for testing
+    // if (!user.isVerified) {
+    //   return res.status(403).json({
+    //     status: httpStatus.FORBIDEN,
+    //     message: "the user did not verified their email",
+    //   });
+    // }
     const jwt_token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "10m",
     });
