@@ -72,6 +72,16 @@ const updateProfile = async (req, res) => {
 //? POST /api/user/search?=        (I WANT TO IMPLEMENT SEARCH FOR MESSAEGS AND CHAT AND ANOTHER FOR THE USER)
 const searchuser = async (req, res) => {
   try {
+    const {username,email}=req.query;
+    // console.log('{username,email}',{username,email}); 
+
+    const resultOfSearch=await User.find({username:{$regex:username,$options:"i"}}).select("_id username email bio profilePicture") 
+
+    return res.status(200).json({
+      status: httpStatus.SUCCESS,
+      data: resultOfSearch,
+    });
+    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -125,7 +135,7 @@ const getFriends = async (req, res) => {
 const updateFriends = async (req, res) => {
   try {
     const currentUser = req.user;
-    const {friendId} = req.params;
+    const { friendId } = req.params;
     const { customName } = req.body;
     const friend = await User.findOne({ _id: friendId });
     if (!friend) {
@@ -152,17 +162,17 @@ const updateFriends = async (req, res) => {
 const removeFriend = async (req, res) => {
   try {
     const currentUser = req.user;
-    const {friendId} = req.params;
-    console.log('friendId',friendId);
-    
+    const { friendId } = req.params;
+    console.log("friendId", friendId);
+
     const friend = await User.findById(friendId);
-    console.log('friend',friend);
+    console.log("friend", friend);
     if (!friend) {
       return res
         .status(404)
         .json({ status: httpStatus.FAIL, message: "no user found by this id" });
     }
-    
+
     await User.updateOne(
       { _id: currentUser._id },
       { $pull: { friends: { user: friend._id } } }
@@ -180,6 +190,32 @@ const removeFriend = async (req, res) => {
 //? POST /api/user/block/:userId
 const blockUser = async (req, res) => {
   try {
+    const currentUser = req.user;
+    const { userId } = req.params;
+    const blockedUser = await User.findById(userId).select(
+      "username email bio profilePicture"
+    );
+    if (!blockedUser) {
+      return res.status(404).json({
+        status: httpStatus.FAIL,
+        message: "no user found by this id to block",
+      });
+    }
+    if (blockedUser._id == currentUser._id) {
+      return res.status(400).json({
+        status: httpStatus.FAIL,
+        message: "you can not block yourself",
+      });
+    }
+    await User.updateOne(
+      { _id: currentUser._id },
+      { $addToSet: { blockedUsers: blockedUser._id } }
+    );
+    return res.status(200).json({
+      status: httpStatus.SUCCESS,
+      message: "you blocked the user successfuly",
+      data: blockedUser,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -188,6 +224,32 @@ const blockUser = async (req, res) => {
 //? POST /api/user/unblock/:userId
 const unblockUser = async (req, res) => {
   try {
+    const currentUser = req.user;
+    const { userId } = req.params;
+    const blockedUser = await User.findById(userId).select(
+      "username email bio profilePicture"
+    );
+    if (!blockedUser) {
+      return res.status(404).json({
+        status: httpStatus.FAIL,
+        message: "no user found by this id to block",
+      });
+    }
+    if (blockedUser._id == currentUser._id) {
+      return res.status(400).json({
+        status: httpStatus.FAIL,
+        message: "you can not block yourself",
+      });
+    }
+    await User.updateOne(
+      { _id: currentUser._id },
+      { $pull: { blockedUsers: blockedUser._id } }
+    );
+    return res.status(200).json({
+      status: httpStatus.SUCCESS,
+      message: "you unblocked the user successfuly",
+      data: blockedUser,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -196,12 +258,16 @@ const unblockUser = async (req, res) => {
 //? GET /api/user/blocked
 const getBlockedUsers = async (req, res) => {
   try {
+    const currentUser=req.user;
+    //? i will populate on the users and select the main info 
+    const blockedUsers=await User.findById(currentUser._id).populate("blockedUsers","username email bio profilePicture").select("_id username email bio profilePicture")
+    return res.status(200).json({status:httpStatus.SUCCESS,data:blockedUsers})
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-//? PUT /api/user/online-status
+//? PATCH /api/user/online-status
 const updateOnlineStatus = async (req, res) => {
   try {
   } catch (error) {
@@ -240,13 +306,13 @@ const updateOnlineStatus = async (req, res) => {
 module.exports = {
   getUserProfile, //done
   updateProfile, //done
-  searchuser,
-  blockUser,
-  unblockUser,
-  getBlockedUsers,
-  updateOnlineStatus,
   addFriends, //done
   getFriends, //done
   removeFriend, //done
   updateFriends, //done
+  searchuser,
+  blockUser, //done
+  unblockUser, //done
+  getBlockedUsers, //done
+  updateOnlineStatus, // pending
 };
