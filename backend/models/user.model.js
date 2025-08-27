@@ -80,7 +80,7 @@ const userSchema = new mongoose.Schema(
         ref: "Message",
       },
     ],
-    rooms: [
+    chats: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Chat",

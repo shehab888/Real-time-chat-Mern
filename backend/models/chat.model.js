@@ -25,7 +25,7 @@ const chatShema = new mongoose.Schema(
     },
     groupAdmins:[{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'User'
+        ref:'User',
     }],
     groupDescription: {
       type: String,

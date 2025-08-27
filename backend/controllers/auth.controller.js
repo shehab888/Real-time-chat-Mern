@@ -7,22 +7,21 @@ const sendEmail = require("../utils/sendEmail");
 // POST /api/auth/register
 const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
-    // console.log({username,email,password});
+    const reqBody = req.body;
 
-    if (!password || password.length < 8) {
+    if (!reqBody.password || reqBody.password.length < 8) {
       return res
         .status(400)
         .json({ status: httpStatus.FAIL, message: "not valid password" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(reqBody.password, 10);
     // console.log('hashedpassword',hashedPassword);
 
     const newUser = new User({
-      username,
-      email,
-      password: hashedPassword,
+      ...reqBody,
+      isVerified:false, //? make it false if the user tried to make it true it will be updated and the db will take the last
+      password: hashedPassword, 
     });
 
     //? create the token for verifying the email and send it to the cookies
