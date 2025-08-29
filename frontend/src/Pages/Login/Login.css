@@ -1,0 +1,49 @@
+.login{
+                    background: url('/public/background.png') no-repeat;
+                    background-size: cover;
+                    height: 100vh;
+                    display: flex;
+                    justify-content: space-evenly;
+                    align-items: center;
+}
+.login .logo{    
+                    height: 200px;
+}
+.login-form{
+                    background-color: aliceblue;
+                    padding: 20px;
+                    border: none ;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 20px;
+                    border-radius: 10px;
+}
+.inp{
+                    padding: 10px;
+                    border-radius: 5px;
+                    border: solid 1px cornflowerblue;
+}
+.login-form button{
+                    padding: 10px;
+                    border-radius: 5px;
+                    border: none;
+                    background-color: cornflowerblue;
+                    color: white;
+                    font-weight: bold;
+                    cursor: pointer;
+}
+.login-terms{
+                    display: flex;
+                    color: gray;
+                    gap: 5px;
+}
+.login-forgot{
+                    
+                    gap: 5px;
+                    font-size: 16px;
+}
+.login-forgot span{
+                    color: cornflowerblue;
+                    cursor: pointer;
+                    text-decoration: underline;
+}
