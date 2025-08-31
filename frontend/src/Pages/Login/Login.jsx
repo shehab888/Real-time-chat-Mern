@@ -1,31 +1,118 @@
-import React, { useState } from 'react'
-import './Login.css'
-import assets from '../../assets/assets'
+import React, { useState } from "react";
+import "./Login.css";
 const Login = () => {
-      const [currentstate,setcurrentstate]=useState("Sign Up")              
-  return (
-    <div className='login'>
-      <img src={assets.logo_big} alt="" className="logo" />
-      <form className="login-form">
-      <h2>{currentstate}</h2>
-      {currentstate === "Sign Up" ?<input type="text" placeholder='Username' className='username inp' required/> : ""}
-      <input type="email" placeholder='Email Address' className='email inp' required/>
-      <input type="password" placeholder='Password' className='password inp' required/>
-      <button type="submit" className='login-button'>{currentstate === "Sign Up" ? "Create new account":"Login Now"}</button>
-      
-      <div className="login-terms">
-         <input type="checkbox" />           
-         <p> Agree to our Terms of Service and Privacy Policy.</p>
-      </div>
-      <div className="login-forgot">
-         {currentstate === "Sign Up" ?
-         <p>Already have an account <span onClick={() => setcurrentstate("Login")}>Login Here</span></p>
-         :<p>Create an account <span onClick={() => setcurrentstate("Sign Up")}>Click Here</span></p>
-         }     
-      </div>
-      </form>
-    </div>
-  )
-}
+  const [isSignUp, setIsSignUp] = useState(false);
 
-export default Login
+  return (
+    <div className="container">
+      <div className={"login"}>
+        <div className="login-form">
+          {/* Social Login Icons */}
+          <div className="social-icons">
+            <button className="social-btn">G</button>
+            <button className="social-btn">f</button>
+            <button className="social-btn">in</button>
+            <button className="social-btn">𝕏</button>
+            <button className="social-btn">🍎</button>
+          </div>
+
+          {/* Divider */}
+          <div className="divider">
+            <span>or</span>
+          </div>
+
+          {/* Username field (for Sign Up) */}
+          {isSignUp && (
+            <div className="form-group" id="username-group">
+              <label className="form-label">Username</label>
+              <input
+                type="text"
+                placeholder="Enter your username"
+                className="inp username"
+                required
+              />
+            </div>
+          )}
+
+          {/* Email field */}
+          <div className="form-group">
+            <label className="form-label">E-mail</label>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              className="inp email"
+              required
+            />
+          </div>
+
+          {/* Password field */}
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              className="inp password"
+              required
+            />
+          </div>
+
+          {/* Remember Me */}
+          {!isSignUp && (
+            <div className="checkbox-group">
+              <input
+                type="checkbox"
+                className="checkbox"
+                id="remember"
+                defaultChecked
+              />
+              <label htmlFor="remember" className="checkbox-label">
+                Remember Me
+              </label>
+            </div>
+          )}
+
+          {/* Main Button */}
+          <button type="submit" className="login-button" id="main-btn">
+            {isSignUp ? "Create Account" : "Log In"}
+          </button>
+
+          {/* Forgot Password Links */}
+          {!isSignUp && (
+            <div className="forgot-links">
+              <a href="#" className="forgot-link">
+                Forgot your password?
+              </a>
+              <a href="#" className="forgot-link reset-link">
+                Reset Password
+              </a>
+            </div>
+          )}
+
+          {/* Terms (for Sign Up) */}
+          {isSignUp && (
+            <div className="login-terms" id="terms-group">
+              <input type="checkbox" className="checkbox" id="terms" />
+              <p>Agree to our Terms of Service and Privacy Policy.</p>
+            </div>
+          )}
+
+          {/* Toggle Login/Sign Up */}
+          <div className="login-forgot">
+            <p id="toggle-text">
+              <button
+                type="button"
+                className="create-account-btn"
+                id="toggle-btn"
+                onClick={() => setIsSignUp(!isSignUp)}
+              >
+                {isSignUp ? "Back to Login" : "Create Account"}
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
