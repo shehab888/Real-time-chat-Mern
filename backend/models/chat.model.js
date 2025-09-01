@@ -20,8 +20,13 @@ const chatShema = new mongoose.Schema(
     ],
     groupOwner: {
       type: mongoose.Schema.Types.ObjectId,
-      required:[true,"it must the chat has owner user"],
-      ref: "User",
+  ref: "User",
+  required: [
+    function () {
+      return this.isGroupChat; // required only if it's a group chat
+    },
+    "It must be that the chat has an owner user", // custom error message
+  ],
     },
     groupAdmins:[{
         type:mongoose.Schema.Types.ObjectId,
