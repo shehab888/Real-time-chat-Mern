@@ -256,7 +256,8 @@ const markMessageAsRead = async (req, res) => {
 
     // Check if user is participant in the chat
     const chat = await Chat.findById(message.chat);
-    const isParticipant = chat.participants.includes(userId);
+    const isParticipant = chat.participants.some(p => p.toString() === userId.toString());
+
     if (!isParticipant) {
       return res.status(403).json({ error: 'Access denied' });
     }
@@ -325,7 +326,7 @@ const getUnreadCount = async (req, res) => {
       chat: chatId,
       sender: { $ne: userId }, // Not sent by current user
       isDeleted: false,
-      'readBy.user': { $ne: userId } // Not read by current user
+      readBy: { $not: { $elemMatch: { user: userId } } } // Not read by current user
     });
 
     res.status(200).json({
@@ -389,7 +390,7 @@ const markChatAsRead = async (req, res) => {
       chat: chatId,
       sender: { $ne: userId },
       isDeleted: false,
-      'readBy.user': { $ne: userId }
+      readBy: { $not: { $elemMatch: { user: userId } } }
     });
 
     // Mark all as read
