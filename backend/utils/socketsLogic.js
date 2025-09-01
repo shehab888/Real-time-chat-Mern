@@ -10,14 +10,27 @@ const initializeSocket = (io) => {
   io.on('connection', (socket) => {
     console.log('User connected:', socket.id);
 
-    // Handle user authentication and registration
-    socket.on('authenticate', async (data) => {
+      // Handle user authentication and registration
+    socket.on("authenticate", async (data) => {
       try {
-        const { userId, token } = data;
-        
-        // Here you would verify the JWT token
-        // For now, assuming it's valid
-        
+        const { token } = data;
+        if (!token) {
+          return socket.emit("error", { message: "No token provided" });
+        }
+
+        // Verify JWT
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+        if (!decoded || !decoded._id) {
+          return socket.emit("error", { message: "Invalid token" });
+        }
+
+        // Ensure user exists in DB
+        const user = await User.findById(decoded._id);
+        if (!user) {
+          return socket.emit("error", { message: "User not found" });
+        }
+
+        const userId = user._id.toString();
         // Store user connection
         if (!connectedUsers.has(userId)) {
           connectedUsers.set(userId, new Set());
