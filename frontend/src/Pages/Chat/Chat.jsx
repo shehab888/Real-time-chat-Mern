@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./Chat.css"; // نستورد ملف الستايل
-
+import profilealison from "../../assets/profile_alison.png";
+import block from "../../assets/block.png";
+import info from "../../assets/help_icon.png";
 const Chat = () => {
   const [messages, setMessages] = useState([
     { id: 1, text: "Hey! كيفك؟", sender: "me" },
@@ -15,7 +17,10 @@ const Chat = () => {
     setInput("");
   };
 
+
+
   return (
+    
     <div className="chat-container">
       {/* Sidebar */}
       <div className="sidebar">
@@ -29,19 +34,27 @@ const Chat = () => {
       {/* Chat Area */}
       <div className="chat-area">
         {/* Header */}
-        <div className="chat-header">صديق ١</div>
+        <div className="chat-header">
+          <img src={profilealison} alt="" className="profilephoto" />
+          <p className="profilename">Alison</p>
+          <img src={block} alt="" className="blockicon" />
+          <img src={info} alt="" className="infoicon" />
+        </div>
 
         {/* Messages */}
         <div className="messages">
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`message ${msg.sender === "me" ? "me" : "other"}`}
+              className={`message ${msg.sender === "me" ? "me" :  "other"}`}
             >
               {msg.text}
             </div>
           ))}
+          
         </div>
+
+
 
         {/* Input */}
         <div className="chat-input">
@@ -52,8 +65,18 @@ const Chat = () => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
+          
+
+          <label className="b1">
+            📎
+            <input
+              type="file"
+              style={{ display: "none" }}
+              accept="image/*,video/*,.pdf,.doc,.docx" />
+          </label>
           <button onClick={sendMessage}>➤</button>
         </div>
+
       </div>
     </div>
   );
