@@ -76,6 +76,12 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.message.files {
+  align-self: flex-end;
+  background-color: #10b981;
+  font-style: italic;
+}
+
 /* Input */
 .chat-input {
   display: flex;
@@ -103,4 +109,64 @@
   cursor: pointer;
   color: #fff;
   font-size: 1.2rem;
+  
 }
+
+.chat-input label {
+  background-color: #d946ef;
+  border: none;
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chat-input label:hover {
+  background-color: #c026d3;
+}
+
+.chat-input button:hover {
+  background-color: #c026d3;
+}
+
+.chat-input .b1{
+  margin-right: 5px;
+}
+
+.profilephoto {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+}
+
+.profilename {
+  display: inline;
+  margin-left: 10px;
+  font-weight: bold;
+  color: #d946ef;
+}
+
+.blockicon {
+  width: 25px;
+  height: 25px;
+  float: right;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.infoicon {
+  width: 25px;
+  height: 25px;
+  float: right;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-right: 10px;
+}
+
