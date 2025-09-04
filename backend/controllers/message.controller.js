@@ -1,8 +1,8 @@
 const Message = require('../models/message.model');
 const Chat = require('../models/chat.model');
 const User = require('../models/user.model');
-const { emitToChat, emitToUser } = require('../utils/socketslogic');
-const { SOCKET_EVENTS } = require('../utils/socketEvents');
+const { emitToChat, emitToUser } = require('../utils/socketsLogic');
+const SOCKET_EVENTS  = require('../utils/socketEvents');
 
 // GET /api/messages/:chatId
 const getChatMessages = async (req, res) => {
@@ -92,14 +92,14 @@ const sendMessage = async (req, res) => {
     await newMessage.save();
 
     // Update chat's latest message
-    chat.latestMessage = newMessage._id;
+    chat.latestMessage = newMessage._id; 
     await chat.save();
 
     // Populate sender details for the response
     await newMessage.populate('sender', 'username profilePicture isOnline');
 
     // Emit to all chat participants
-    emitToChat(chatId, SOCKET_EVENTS.NEW_MESSAGE, {
+    emitToChat(chatId, SOCKET_EVENTS.MESSAGE_CREATED, {
       message: newMessage,
       chatId
     }, [userId]); // Exclude sender
@@ -121,7 +121,7 @@ const sendMessage = async (req, res) => {
   }
 };
 
-// PUT /api/messages/:messageId
+// PATCH /api/messages/:messageId
 const editMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
@@ -139,7 +139,7 @@ const editMessage = async (req, res) => {
     }
 
     if (message.isDeleted) {
-      return res.status(404).json({ error: 'Message not found' });
+      return res.status(404).json({ error: 'You Can not update Message deleted' });
     }
 
     // Verify user is the sender
@@ -442,7 +442,7 @@ const handleTyping = async (req, res) => {
     }
 
     // Emit typing status to other participants
-    const eventType = isTyping ? SOCKET_EVENTS.USER_TYPING : SOCKET_EVENTS.USER_STOPPED_TYPING;
+    const eventType = isTyping ? SOCKET_EVENTS.USER_HAS_TYPED : SOCKET_EVENTS.USER_STOPPED_TYPING;
     emitToChat(chatId, eventType, {
       userId,
       username: req.user.username,

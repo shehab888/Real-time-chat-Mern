@@ -1,17 +1,24 @@
 // utils/socketslogic.js
 const Chat = require('../models/chat.model');
+const User= require('../models/user.model')
+const SOCKET_EVENTS=require('./socketEvents')
+// const Message= require('../models/message.model')
+let io;
 
 // Store connected users and their socket IDs
 const connectedUsers = new Map(); // userId -> Set of socketIds
 const socketToUser = new Map(); // socketId -> userId
 
+const initilaizeIo=(IO)=>{
+    io=IO;
+}
 // Initialize socket connection
 const initializeSocket = (io) => {
-  io.on('connection', (socket) => {
+  io.on(SOCKET_EVENTS.CONNECTION, (socket) => {
     console.log('User connected:', socket.id);
 
-      // Handle user authentication and registration
-    socket.on("authenticate", async (data) => {
+      //? Handle user authentication and registration (optional as it already handled by the api) 
+    socket.on(SOCKET_EVENTS.AUTHENTICATE, async (data) => {
       try {
         const { token } = data;
         if (!token) {
@@ -45,7 +52,7 @@ const initializeSocket = (io) => {
         });
         
         // Notify others that user is online
-        socket.broadcast.emit('user_online', { userId });
+        socket.broadcast.emit(SOCKET_EVENTS.USER_ONLINE, { userId });
         
         console.log(`User ${userId} authenticated with socket ${socket.id}`);
         
@@ -55,20 +62,22 @@ const initializeSocket = (io) => {
     });
 
     // Handle joining specific chat rooms
-    socket.on('join_chat', (chatId) => {
+    socket.on(SOCKET_EVENTS.USER_JOINED_CHAT, ({chatId,userId}) => {
       socket.join(chatId);
+      io.to(chatId).emit(userId)
       console.log(`Socket ${socket.id} joined chat ${chatId}`);
     });
 
     // Handle leaving specific chat rooms
-    socket.on('leave_chat', (chatId) => {
+    socket.on(SOCKET_EVENTS.USER_LEAVE_CHAT, ({chatId,userId}) => {
       socket.leave(chatId);
+      io.to(chatId).emit(SOCKET_EVENTS.USER_LEFT_CHAT,userId)
       console.log(`Socket ${socket.id} left chat ${chatId}`);
     });
 
     // Handle typing events
-    socket.on('typing', (data) => {
-      const { chatId, isTyping } = data;
+    socket.on(SOCKET_EVENTS.USER_TYPING, (chatId) => {
+      // const { chatId } = data;
       const userId = socketToUser.get(socket.id);
       
       if (userId) {
@@ -80,7 +89,7 @@ const initializeSocket = (io) => {
     });
 
     // Handle disconnect
-    socket.on('disconnect', () => {
+    socket.on(SOCKET_EVENTS.DISCONNECT, () => {
       const userId = socketToUser.get(socket.id);
       
       if (userId) {
@@ -92,7 +101,7 @@ const initializeSocket = (io) => {
           // If user has no more connections, mark as offline
           if (userSockets.size === 0) {
             connectedUsers.delete(userId);
-            socket.broadcast.emit('user_offline', { userId });
+            socket.broadcast.emit(SOCKET_EVENTS.USER_OFFLINE, { userId });
             console.log(`User ${userId} went offline`);
           }
         }
@@ -104,12 +113,11 @@ const initializeSocket = (io) => {
     });
   });
 
-  return io;
 };
 
 // Emit to all participants in a chat
 const emitToChat = (chatId, event, data, excludeUsers = []) => {
-  const io = global.io; // Assuming io is stored globally
+
   if (!io) return;
 
   // Convert excludeUsers to strings for comparison
@@ -132,7 +140,7 @@ const emitToUser = (userId, event, data) => {
   const userSockets = connectedUsers.get(userId.toString());
   if (!userSockets) return;
 
-  const io = global.io;
+
   if (!io) return;
 
   userSockets.forEach(socketId => {
@@ -174,9 +182,8 @@ const getChatOnlineCount = async (chatId) => {
 
 // Broadcast to all connected sockets
 const broadcastToAll = (event, data) => {
-  const io = global.io;
-  if (!io) return;
   
+  if (!io) return;
   io.emit(event, data);
 };
 
@@ -185,7 +192,7 @@ const disconnectUser = (userId) => {
   const userSockets = connectedUsers.get(userId.toString());
   if (!userSockets) return;
 
-  const io = global.io;
+
   if (!io) return;
 
   userSockets.forEach(socketId => {
@@ -209,5 +216,6 @@ module.exports = {
   broadcastToAll,
   disconnectUser,
   connectedUsers,
-  socketToUser
+  socketToUser,
+  initilaizeIo
 };

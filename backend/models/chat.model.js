@@ -5,7 +5,7 @@ const chatShema = new mongoose.Schema(
     chatName: {
       type: String,
       trim: true,
-      required:[true,"the name of the chat is required"]
+      required: [true, "the name of the chat is required"],
     },
     isGroupChat: {
       type: Boolean,
@@ -15,23 +15,31 @@ const chatShema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        required: [true,"the chats must has users"],
+        required: [true, "the chats must has users"],
       },
     ],
     groupOwner: {
       type: mongoose.Schema.Types.ObjectId,
-  ref: "User",
-  required: [
-    function () {
-      return this.isGroupChat; // required only if it's a group chat
+      ref: "User",
+      required: [
+        function () {
+          return this.isGroupChat; // required only if it's a group chat
+        },
+        "It must be that the chat has an owner user", // custom error message
+      ],
     },
-    "It must be that the chat has an owner user", // custom error message
-  ],
-    },
-    groupAdmins:[{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'User',
-    }],
+    groupAdmins: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        // required: [
+        //   function () {
+        //     return this.isGroupChat; // required only if it's a group chat
+        //   },
+        //   "It must be that the chat has an admin user", // custom error message
+        // ],
+      },
+    ],
     groupDescription: {
       type: String,
       maxlength: 500,

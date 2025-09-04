@@ -15,7 +15,7 @@ router.get("/:chatId", messageController.getChatMessages);
 router.post("/:chatId", messageController.sendMessage);
 
 // Edit a message
-router.put("/:messageId", messageController.editMessage);
+router.patch("/:messageId", messageController.editMessage);
 
 // Delete a message
 router.delete("/:messageId", messageController.deleteMessage);
