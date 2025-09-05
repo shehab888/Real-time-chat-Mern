@@ -3,6 +3,7 @@ const Chat = require('../models/chat.model');
 const User = require('../models/user.model');
 const { emitToChat, emitToUser } = require('../utils/socketsLogic');
 const SOCKET_EVENTS  = require('../utils/socketEvents');
+const httpStatus = require('../utils/httpStatus');
 
 // GET /api/messages/:chatId
 const getChatMessages = async (req, res) => {
@@ -18,7 +19,10 @@ const getChatMessages = async (req, res) => {
     }
 
     const isParticipant = chat.participants.includes(userId);
-    if (!isParticipant) {
+    const isOwnerParticipant = chat.groupOwner.toString()==userId.toString()
+    const isAdminParticipant = chat.groupAdmins.includes(userId);
+    console.log('isParticipant',isParticipant,'isOwnerParticipant',isOwnerParticipant,'isAdminParticipant',isAdminParticipant)
+    if (!isParticipant && !isOwnerParticipant && !isAdminParticipant ) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -27,7 +31,7 @@ const getChatMessages = async (req, res) => {
       chat: chatId,
       isDeleted: false 
     })
-      .populate('sender', 'username profilePicture isOnline')
+      .populate('sender', 'username email profilePicture isOnline')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -54,17 +58,21 @@ const getChatMessages = async (req, res) => {
 const sendMessage = async (req, res) => {
   try {
     const { chatId } = req.params;
+    const { page = 1, limit = 50 } = req.query;
     const { content, messageType = 'text' } = req.body;
     const userId = req.user._id;
 
     // Verify user is participant in the chat
-    const chat = await Chat.findById(chatId).populate('participants', 'username profilePicture isOnline');
+    const chat = await Chat.findById(chatId);
     if (!chat) {
       return res.status(404).json({ error: 'Chat not found' });
     }
 
-    const isParticipant = chat.participants.some(p => p._id.toString() === userId.toString());
-    if (!isParticipant) {
+    const isParticipant = chat.participants.includes(userId);
+    const isOwnerParticipant = chat.groupOwner.toString()==userId.toString()
+    const isAdminParticipant = chat.groupAdmins.includes(userId);
+    console.log('isParticipant',isParticipant,'isOwnerParticipant',isOwnerParticipant,'isAdminParticipant',isAdminParticipant)
+    if (!isParticipant && !isOwnerParticipant && !isAdminParticipant ) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -273,14 +281,14 @@ const markMessageAsRead = async (req, res) => {
 
     // Don't mark own messages as read
     if (message.sender.toString() === userId.toString()) {
-      return res.status(200).json({ 
-        success: true, 
+      return res.status(400).json({ 
+        success: httpStatus.FAIL, 
         message: 'Cannot mark own message as read' 
       });
     }
 
     // Add read status
-    message.readBy.push({
+    message.readBy.addToSet({
       user: userId,
       readAt: new Date()
     });
