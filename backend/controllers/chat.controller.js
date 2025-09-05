@@ -23,24 +23,33 @@ const createChat = async (req, res) => {
     const reqBody = req.body;
 
     //? push the current user to be a part of the group
-    if (reqBody.participants.includes(currentUser._id.toString())) {
-      reqBody.participants.pull(currentUser._id);
-    }
 
     //? check if the group chat is true
     if (reqBody.isGroupChat) {
       reqBody.groupOwner = currentUser._id; //? make the owner the current if the client tried to change it we update it before saving
-      //? loop on the groupd admin if they are not in the particpants put them in the participants
-      for (let i = 0; i < reqBody.groupAdmins.length; i++) {
-        if (reqBody.participants.includes(groupAdmins[i])) {
-          reqBody.participants.pull(groupAdmins[i]);
+
+      //? loop on the (groupd admin if there exist admin) if they are not in the particpants put them in the participants
+      if (reqBody.groupAdmins) {
+        for (let i = 0; i < reqBody.groupAdmins.length; i++) {
+          if (reqBody.participants.includes(groupAdmins[i])) {
+            reqBody.participants.pull(groupAdmins[i]);
+          }
         }
+      } //? delete the owner from the participants if the group owner
+      if (reqBody.participants.includes(currentUser._id.toString())) {
+        reqBody.participants.pull(currentUser._id);
       }
     } else {
       //? in case the clinet make the group chat is true (when update or added group owner or admins) we update it before saving
       reqBody.isGroupChat = false;
       delete reqBody.groupOwner;
       delete reqBody.groupAdmins;
+      delete reqBody.chatSettings.allowOnlyAdminsToSend;
+
+      //? add the current user as a regular participants not group owner
+      if (!reqBody.participants.includes(currentUser._id.toString())) {
+        reqBody.participants.push(currentUser._id);
+      }
       if (reqBody.participants.length > 2) {
         return res.status(400).json({
           status: httpStatus.FAIL,
@@ -470,7 +479,7 @@ const manageGroupAdmin = async (req, res) => {
 //! related with the messages
 const pinMessage = async (req, res) => {
   try {
-    const { chatId, messageId } = req.param;
+    const { chatId, messageId } = req.params;
 
     //? get the chat
     const chat = await Chat.findById(chatId);
@@ -499,7 +508,7 @@ const pinMessage = async (req, res) => {
     //? update the chat to put the latese message
     const updatedChat = await Chat.findOneAndUpdate(
       { _id: chat._id },
-      { pinnedMessages: { $addToSet: message._id } },
+      { $addToSet: { pinnedMessages: message._id } },
       { new: true }
     );
 
@@ -522,7 +531,7 @@ const pinMessage = async (req, res) => {
 //! related with the messages
 const unpinMessage = async (req, res) => {
   try {
-    const { chatId, messageId } = req.param;
+    const { chatId, messageId } = req.params;
 
     //? get the chat
     const chat = await Chat.findById(chatId);
@@ -551,7 +560,7 @@ const unpinMessage = async (req, res) => {
     //? update the chat to put the latese message
     const updatedChat = await Chat.findOneAndUpdate(
       { _id: chat._id },
-      { pinnedMessages: { $pull: message._id } },
+      { $pull: { pinnedMessages: message._id } },
       { new: true }
     );
 
