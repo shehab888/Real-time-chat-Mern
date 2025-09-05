@@ -1,6 +1,6 @@
 .chat-container {
   display: flex;
-  height: 80vh;
+  height: 79vh;
   background: linear-gradient(to bottom, #0f172a, #111827, #0f172a);
   color: #fff;
   font-family: Arial, sans-serif;
@@ -12,6 +12,62 @@
   border-right: 1px solid #1f2937;
   display: flex;
   flex-direction: column;
+}
+/* Profile & settings */
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  padding: 8px;
+}
+
+.profile-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #d946ef;
+}
+.search-box {
+  flex: 1; /* تاخد المساحة الباقية */
+}
+
+.search-box input {
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+.settings-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: white;
+}
+
+.dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #1e293b;
+  border-radius: 6px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+  z-index: 10;
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+  color: white;
+}
+
+.dropdown-item:hover {
+  background: #d946ef;
 }
 
 .sidebar-header {
@@ -109,7 +165,6 @@
   cursor: pointer;
   color: #fff;
   font-size: 1.2rem;
-  
 }
 
 .chat-input label {
@@ -134,7 +189,7 @@
   background-color: #c026d3;
 }
 
-.chat-input .b1{
+.chat-input .b1 {
   margin-right: 5px;
 }
 
@@ -169,4 +224,3 @@
   margin-top: 8px;
   margin-right: 10px;
 }
-

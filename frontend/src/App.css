@@ -4,6 +4,10 @@ body {
   background: linear-gradient(to bottom, #0f172a, #111827, #0f172a);
   color: white;
 }
+a {
+  text-decoration: none;
+}
+
 header {
   position: sticky;
   top: 0;

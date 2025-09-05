@@ -24,7 +24,7 @@
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
   border: 1px solid #404040;
 }
-
+/* 
 .social-icons {
   display: flex;
   justify-content: center;
@@ -50,7 +50,7 @@
 .social-btn:hover {
   background: #4a4a4a;
   transform: scale(1.05);
-}
+} */
 
 .divider {
   display: flex;

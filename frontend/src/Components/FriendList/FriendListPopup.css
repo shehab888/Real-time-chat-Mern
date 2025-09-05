@@ -1,0 +1,31 @@
+.friend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: rgba(59, 130, 246, 0.15); /* لون مختلف شوية عن block */
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+}
+
+.remove-btn {
+  background: #3b82f6;
+  border: none;
+  color: white;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  background: #2563eb;
+}
+
+.empty-text {
+  text-align: center;
+  color: #aaa;
+  font-style: italic;
+}
+

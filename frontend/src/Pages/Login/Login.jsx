@@ -7,19 +7,19 @@ const Login = () => {
     <div className="container">
       <div className={"login"}>
         <div className="login-form">
-          {/* Social Login Icons */}
+          {/* Social Login Icons
           <div className="social-icons">
             <button className="social-btn">G</button>
             <button className="social-btn">f</button>
             <button className="social-btn">in</button>
             <button className="social-btn">𝕏</button>
             <button className="social-btn">🍎</button>
-          </div>
+          </div> */}
 
           {/* Divider */}
-          <div className="divider">
+          {/* <div className="divider">
             <span>or</span>
-          </div>
+          </div> */}
 
           {/* Username field (for Sign Up) */}
           {isSignUp && (

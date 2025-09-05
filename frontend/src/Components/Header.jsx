@@ -1,8 +1,11 @@
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 function Header() {
   return (
     <header className="header">
       <div>
-        <strong>SweetTalk</strong>
+        <Link to={"/"} style={{ color: "white", fontSize: "18px" }}>
+          <strong>SweetTalk</strong>
+        </Link>
       </div>
       <nav>
         <a href="#features">Features</a>
