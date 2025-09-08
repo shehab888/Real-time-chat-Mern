@@ -7,6 +7,9 @@ body {
 a {
   text-decoration: none;
 }
+.loading {
+  height: 80vh;
+}
 
 header {
   position: sticky;

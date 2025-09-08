@@ -1,41 +1,106 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import BlockListPopup from "../../Components/BlockList/BlockListPopup";
 import FriendsListPopup from "../../Components/FriendList/FriendListPopup";
-import "./Chat.css"; // نستورد ملف الستايل
+import "./Chat.css";
 import profilealison from "../../assets/profile_alison.png";
 import block from "../../assets/block.png";
 import info from "../../assets/help_icon.png";
+
 const Chat = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, text: "Hey! كيفك؟", sender: "me" },
-    { id: 2, text: "الحمد لله وانت؟", sender: "other" },
-    { id: 3, text: "تمام 😍", sender: "me" },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [showBlockList, setShowBlockList] = useState(false);
-  const [showFriendsList, setShowFriendsList] = useState(false); // ✅ جديد
-  const [blockedUsers, setBlockedUsers] = useState([
-    "User 1",
-    "User 2",
-    "User 3",
-  ]);
-  const [friends, setFriends] = useState(["Friend A", "Friend B", "Friend C"]); // ✅ جديد
-  const sendMessage = () => {
-    if (input.trim() === "") return;
-    setMessages([...messages, { id: Date.now(), text: input, sender: "me" }]);
+  const [showFriendsList, setShowFriendsList] = useState(false);
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [friends, setFriends] = useState([]);
+  const [activeFriend, setActiveFriend] = useState(null);
+
+  // 🆕 للبحث
+  const [searchInput, setSearchInput] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+
+  const token = localStorage.getItem("token");
+
+  // 🟢 جلب البيانات من السيرفر
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/api/user/data", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setFriends(data.friends || []);
+        setBlockedUsers(data.blocked || []);
+      } catch (err) {
+        console.error("Error fetching user data", err);
+      }
+    };
+    fetchData();
+  }, [token]);
+
+  // 🟢 فتح محادثة صديق معين
+  const openChat = async (friend) => {
+    setActiveFriend(friend);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/messages/${friend._id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const data = await res.json();
+      setMessages(data || []);
+    } catch (err) {
+      console.error("Error fetching messages", err);
+    }
+  };
+
+  // 🟢 إرسال رسالة
+  const sendMessage = async () => {
+    if (input.trim() === "" || !activeFriend) return;
+
+    const newMsg = { text: input, sender: "me" };
+    setMessages([...messages, newMsg]);
     setInput("");
+
+    try {
+      await fetch(`http://localhost:5000/api/messages/${activeFriend._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ text: input }),
+      });
+    } catch (err) {
+      console.error("Error sending message", err);
+    }
   };
 
-  const handleUnblock = (user) => {
-    setBlockedUsers(blockedUsers.filter((u) => u !== user));
+  // 🆕 البحث عن يوزر
+  const handleSearch = async () => {
+    if (!searchInput.trim()) return;
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/user/search?username=${searchInput}`,
+        {
+          method: "GET",
+          credentials: "include", // الكوكي هيتبعت أوتوماتيك
+        }
+      );
+      const data = await res.json();
+      if (res.ok && data) {
+        setSearchResults([data]); // لو API بيرجع يوزر واحد
+      } else {
+        setSearchResults([]);
+      }
+    } catch (err) {
+      console.error("Error searching user", err);
+    }
   };
 
-  // ✅ مسح من الفريند ليست
-  const handleRemoveFriend = (friend) => {
-    setFriends(friends.filter((f) => f !== friend));
-  };
   return (
     <div className="chat-container">
       {/* Sidebar */}
@@ -49,8 +114,36 @@ const Chat = () => {
 
           {/* Search in the middle */}
           <div className="search-box">
-            <input type="text" placeholder="Search..." />
+            <input
+              type="text"
+              placeholder="Search by username..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
+            <button onClick={handleSearch}>🔍</button>
           </div>
+
+          {/* Search results */}
+          {searchResults.length > 0 && (
+            <div className="search-results">
+              {searchResults.map((user) => (
+                <div
+                  key={user._id}
+                  className="search-item"
+                  onClick={() => openChat(user)}
+                >
+                  <img
+                    src={user.avatar || "https://i.pravatar.cc/40"}
+                    alt="avatar"
+                    className="search-avatar"
+                  />
+                  <span>
+                    {user.username} ({user.email})
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Settings button */}
           <button
@@ -90,59 +183,75 @@ const Chat = () => {
 
         <div className="sidebar-header">Chats</div>
         <div className="sidebar-list">
-          <div className="sidebar-item">🟣 صديق ١</div>
-          <div className="sidebar-item">🟢 صديق ٢</div>
+          {friends.map((friend) => (
+            <div
+              key={friend._id}
+              className="sidebar-item"
+              onClick={() => openChat(friend)}
+            >
+              🟢 {friend.username}
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Chat Area */}
       <div className="chat-area">
-        {/* Header */}
-        <div className="chat-header">
-          <img src={profilealison} alt="" className="profilephoto" />
-          <p className="profilename">Alison</p>
-          <img src={block} alt="" className="blockicon" />
-          <img src={info} alt="" className="infoicon" />
-        </div>
-
-        {/* Messages */}
-        <div className="messages">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`message ${msg.sender === "me" ? "me" : "other"}`}
-            >
-              {msg.text}
+        {activeFriend ? (
+          <>
+            {/* Header */}
+            <div className="chat-header">
+              <img src={profilealison} alt="" className="profilephoto" />
+              <p className="profilename">{activeFriend.username}</p>
+              <img src={block} alt="" className="blockicon" />
+              <img src={info} alt="" className="infoicon" />
             </div>
-          ))}
-        </div>
 
-        {/* Input */}
-        <div className="chat-input">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          />
+            {/* Messages */}
+            <div className="messages">
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`message ${msg.sender === "me" ? "me" : "other"}`}
+                >
+                  {msg.text}
+                </div>
+              ))}
+            </div>
 
-          <label className="b1">
-            📎
-            <input
-              type="file"
-              style={{ display: "none" }}
-              accept="image/*,video/*,.pdf,.doc,.docx"
-            />
-          </label>
-          <button onClick={sendMessage}>➤</button>
-        </div>
+            {/* Input */}
+            <div className="chat-input">
+              <input
+                type="text"
+                placeholder="Type a message..."
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+              />
+
+              <label className="b1">
+                📎
+                <input
+                  type="file"
+                  style={{ display: "none" }}
+                  accept="image/*,video/*,.pdf,.doc,.docx"
+                />
+              </label>
+              <button onClick={sendMessage}>➤</button>
+            </div>
+          </>
+        ) : (
+          <div className="chat-placeholder">اختر صديق لبدء المحادثة</div>
+        )}
       </div>
+
       {/* ✅ Block List Popup */}
       {showBlockList && (
         <BlockListPopup
           blockedUsers={blockedUsers}
-          onUnblock={handleUnblock}
+          onUnblock={(user) =>
+            setBlockedUsers(blockedUsers.filter((u) => u._id !== user._id))
+          }
           onClose={() => setShowBlockList(false)}
         />
       )}
@@ -151,7 +260,9 @@ const Chat = () => {
       {showFriendsList && (
         <FriendsListPopup
           friends={friends}
-          onRemove={handleRemoveFriend}
+          onRemove={(friend) =>
+            setFriends(friends.filter((f) => f._id !== friend._id))
+          }
           onClose={() => setShowFriendsList(false)}
         />
       )}

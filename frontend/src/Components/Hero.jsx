@@ -13,7 +13,7 @@ function Hero() {
           <Link to={"/chat"} className="btn btn-primary">
             Start chatting
           </Link>
-          <Link to={"/Login"} className="btn btn-outline">
+          <Link to={"/Register"} className="btn btn-outline">
             Create account
           </Link>
         </div>

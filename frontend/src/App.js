@@ -2,11 +2,13 @@ import "./App.css";
 import ProfileUpdate from "./Pages/ProfileUpdate/ProfileUpdate";
 import Chat from "./Pages/Chat/Chat";
 import Login from "./Pages/Login/Login";
+import Register from "./Pages/Login/Register";
 import Home from "./Pages/Home/Home";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import { AnimatePresence, motion } from "framer-motion";
+import PrivateRoute from "./Components/PrivateRoute";
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -41,7 +43,7 @@ function AnimatedRoutes() {
           }
         />
         <Route
-          path="/chat"
+          path="/register"
           element={
             <motion.div
               initial={{ opacity: 0 }}
@@ -49,21 +51,40 @@ function AnimatedRoutes() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <Chat />
+              <Register />
             </motion.div>
           }
         />
+        {/* ✅ Chat محمية */}
+        <Route
+          path="/chat"
+          element={
+            <PrivateRoute>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Chat />
+              </motion.div>
+            </PrivateRoute>
+          }
+        />
+        {/* ✅ Profile محمية */}
         <Route
           path="/profile"
           element={
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ProfileUpdate />
-            </motion.div>
+            <PrivateRoute>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ProfileUpdate />
+              </motion.div>
+            </PrivateRoute>
           }
         />
       </Routes>

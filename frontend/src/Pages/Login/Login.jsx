@@ -1,115 +1,107 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
+
 const Login = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+        credentials: "include", // 👈 مهم جدًا عشان الكوكي يتخزن
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        navigate("/chat"); // ✅ بعد تسجيل الدخول روح للشات
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      setError("Something went wrong");
+    }
+  };
 
   return (
     <div className="container">
-      <div className={"login"}>
-        <div className="login-form">
-          {/* Social Login Icons
-          <div className="social-icons">
-            <button className="social-btn">G</button>
-            <button className="social-btn">f</button>
-            <button className="social-btn">in</button>
-            <button className="social-btn">𝕏</button>
-            <button className="social-btn">🍎</button>
-          </div> */}
-
-          {/* Divider */}
-          {/* <div className="divider">
-            <span>or</span>
-          </div> */}
-
-          {/* Username field (for Sign Up) */}
-          {isSignUp && (
-            <div className="form-group" id="username-group">
-              <label className="form-label">Username</label>
-              <input
-                type="text"
-                placeholder="Enter your username"
-                className="inp username"
-                required
-              />
-            </div>
-          )}
-
-          {/* Email field */}
+      <div className="login">
+        <form className="login-form" onSubmit={handleSubmit}>
+          {/* Email */}
           <div className="form-group">
             <label className="form-label">E-mail</label>
             <input
               type="email"
               placeholder="Enter your email"
               className="inp email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          {/* Password field */}
+          {/* Password */}
           <div className="form-group">
             <label className="form-label">Password</label>
             <input
               type="password"
               placeholder="Enter your password"
               className="inp password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
           {/* Remember Me */}
-          {!isSignUp && (
-            <div className="checkbox-group">
-              <input
-                type="checkbox"
-                className="checkbox"
-                id="remember"
-                defaultChecked
-              />
-              <label htmlFor="remember" className="checkbox-label">
-                Remember Me
-              </label>
-            </div>
-          )}
+          <div className="checkbox-group">
+            <input
+              type="checkbox"
+              className="checkbox"
+              id="remember"
+              defaultChecked
+            />
+            <label htmlFor="remember" className="checkbox-label">
+              Remember Me
+            </label>
+          </div>
 
-          {/* Main Button */}
-          <button type="submit" className="login-button" id="main-btn">
-            {isSignUp ? "Create Account" : "Log In"}
+          {/* Error Message */}
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
+          {/* Button */}
+          <button type="submit" className="login-button">
+            Log In
           </button>
 
-          {/* Forgot Password Links */}
-          {!isSignUp && (
-            <div className="forgot-links">
-              <a href="#" className="forgot-link">
-                Forgot your password?
-              </a>
-              <a href="#" className="forgot-link reset-link">
-                Reset Password
-              </a>
-            </div>
-          )}
+          {/* Links */}
+          <div className="forgot-links">
+            <Link to="/forgot" className="forgot-link">
+              Forgot your password?
+            </Link>
+            <Link to="/reset" className="forgot-link reset-link">
+              Reset Password
+            </Link>
+          </div>
 
-          {/* Terms (for Sign Up) */}
-          {isSignUp && (
-            <div className="login-terms" id="terms-group">
-              <input type="checkbox" className="checkbox" id="terms" />
-              <p>Agree to our Terms of Service and Privacy Policy.</p>
-            </div>
-          )}
-
-          {/* Toggle Login/Sign Up */}
+          {/* Link to Register */}
           <div className="login-forgot">
-            <p id="toggle-text">
-              <button
-                type="button"
-                className="create-account-btn"
-                id="toggle-btn"
-                onClick={() => setIsSignUp(!isSignUp)}
-              >
-                {isSignUp ? "Back to Login" : "Create Account"}
-              </button>
+            <p>
+              Don't have an account?{" "}
+              <Link to="/register" className="create-account-btn">
+                Create Account
+              </Link>
             </p>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
