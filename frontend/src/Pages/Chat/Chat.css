@@ -232,3 +232,26 @@
   margin-top: 8px;
   margin-right: 10px;
 }
+
+@media (max-width: 768px) {
+  .chat-container {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid #1f2937;
+  }
+  .chat-area {
+    width: 100%;
+    height: auto;
+  }
+  .message {
+    max-width: 80%;
+  }
+  .chat-input button, .chat-input label {
+    width: 40px;
+    height: 40px;
+  }
+}
