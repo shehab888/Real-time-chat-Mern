@@ -16,46 +16,9 @@ const Chat = () => {
   const [blockedUsers, setBlockedUsers] = useState([]);
   const [friends, setFriends] = useState([]);
   const [activeFriend, setActiveFriend] = useState(null);
-
   // 🆕 للبحث
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-
-  const token = localStorage.getItem("token");
-
-  // 🟢 جلب البيانات من السيرفر
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/user/data", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const data = await res.json();
-        setFriends(data.friends || []);
-        setBlockedUsers(data.blocked || []);
-      } catch (err) {
-        console.error("Error fetching user data", err);
-      }
-    };
-    fetchData();
-  }, [token]);
-
-  // 🟢 فتح محادثة صديق معين
-  const openChat = async (friend) => {
-    setActiveFriend(friend);
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/messages/${friend._id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const data = await res.json();
-      setMessages(data || []);
-    } catch (err) {
-      console.error("Error fetching messages", err);
-    }
-  };
 
   // 🟢 إرسال رسالة
   const sendMessage = async () => {
@@ -70,7 +33,6 @@ const Chat = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ text: input }),
       });
@@ -82,7 +44,7 @@ const Chat = () => {
   // 🆕 البحث عن يوزر
   const handleSearch = async () => {
     if (!searchInput.trim()) return;
-    try {
+    try { 
       const res = await fetch(
         `http://localhost:5000/api/user/search?username=${searchInput}`,
         {
@@ -91,8 +53,12 @@ const Chat = () => {
         }
       );
       const data = await res.json();
+
+      console.log("Search API result:", data);
+
       if (res.ok && data) {
-        setSearchResults([data]); // لو API بيرجع يوزر واحد
+        // ✅ هتتعامل صح لو Array أو Object
+        setSearchResults(Array.isArray(data) ? data : [data]);
       } else {
         setSearchResults([]);
       }
@@ -122,28 +88,6 @@ const Chat = () => {
             />
             <button onClick={handleSearch}>🔍</button>
           </div>
-
-          {/* Search results */}
-          {searchResults.length > 0 && (
-            <div className="search-results">
-              {searchResults.map((user) => (
-                <div
-                  key={user._id}
-                  className="search-item"
-                  onClick={() => openChat(user)}
-                >
-                  <img
-                    src={user.avatar || "https://i.pravatar.cc/40"}
-                    alt="avatar"
-                    className="search-avatar"
-                  />
-                  <span>
-                    {user.username} ({user.email})
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
 
           {/* Settings button */}
           <button
@@ -183,11 +127,31 @@ const Chat = () => {
 
         <div className="sidebar-header">Chats</div>
         <div className="sidebar-list">
+          {/* Search results */}
+          {searchResults.length > 0 && (
+            <div className="search-results">
+              {searchResults.map((user) => (
+                <div
+                  key={user._id}
+                  className="sidebar-item"
+                  // onClick={() => openChat(user)}
+                >
+                  <img
+                    src={user.profilePicture || "https://i.pravatar.cc/30"}
+                    alt="avatar"
+                    className="search-avatar"
+                  />
+                  <span>{user.username}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
           {friends.map((friend) => (
             <div
               key={friend._id}
               className="sidebar-item"
-              onClick={() => openChat(friend)}
+              // onClick={() => openChat(friend)}
             >
               🟢 {friend.username}
             </div>

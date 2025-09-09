@@ -12,16 +12,15 @@ const userRouter = require("./routes/user.route");
 const messageRouter = require("./routes/message.route");
 const chatRouter = require("./routes/chat.route");
 const Auth = require("./middlewares/Auth");
-const { initializeSocket, initilaizeIo } = require("./utils/socketsLogic")
+const { initializeSocket, initilaizeIo } = require("./utils/socketsLogic");
 
 //?Servers Intialization
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server,{cors:{origin:'*'}});
-
+const io = new Server(server, { cors: { origin: "*" } });
 
 //?Global  Middlewares
-app.use(cors());
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
 
@@ -35,7 +34,7 @@ app.use("/api/user", userRouter);
 app.use("/api/message", messageRouter);
 app.use("/api/chat", chatRouter);
 
-//? init the socket setup 
+//? init the socket setup
 initializeSocket(io);
 //? Http server
 const PORT = process.env.PORT;
