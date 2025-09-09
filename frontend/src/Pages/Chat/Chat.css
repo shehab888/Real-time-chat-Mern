@@ -94,6 +94,9 @@
   padding: 1rem;
   border-bottom: 1px solid #1f2937;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .sidebar-item:hover {
@@ -250,7 +253,8 @@
   .message {
     max-width: 80%;
   }
-  .chat-input button, .chat-input label {
+  .chat-input button,
+  .chat-input label {
     width: 40px;
     height: 40px;
   }

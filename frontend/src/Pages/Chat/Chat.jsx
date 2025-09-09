@@ -44,7 +44,7 @@ const Chat = () => {
   // 🆕 البحث عن يوزر
   const handleSearch = async () => {
     if (!searchInput.trim()) return;
-    try { 
+    try {
       const res = await fetch(
         `http://localhost:5000/api/user/search?username=${searchInput}`,
         {
@@ -54,11 +54,12 @@ const Chat = () => {
       );
       const data = await res.json();
 
-      console.log("Search API result:", data);
+      // console.log("Search API result:", data.data);
 
       if (res.ok && data) {
         // ✅ هتتعامل صح لو Array أو Object
-        setSearchResults(Array.isArray(data) ? data : [data]);
+        console.log(data.data);
+        setSearchResults(Array.isArray(data.data) ? data.data : [data.data]);
       } else {
         setSearchResults([]);
       }
@@ -139,7 +140,7 @@ const Chat = () => {
                   <img
                     src={user.profilePicture || "https://i.pravatar.cc/30"}
                     alt="avatar"
-                    className="search-avatar"
+                    className="profile-img"
                   />
                   <span>{user.username}</span>
                 </div>
