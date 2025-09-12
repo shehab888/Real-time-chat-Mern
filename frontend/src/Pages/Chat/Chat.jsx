@@ -20,6 +20,35 @@ const Chat = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
+
+
+  // 🟢 جلب قائمة الأصدقاء والبلوكد يوزرز من السيرفر
+  const handleAddFriend = async (user) => {
+    const customName = prompt(`Enter a custom name for ${user.username}:`);
+    if (!customName) return;
+
+    try {
+      const res = await fetch("http://localhost:5000/api/user/friends", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // الكوكي
+        body: JSON.stringify({
+          email: user.email,
+          customName: customName,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Friend added successfully!");
+      } else {
+        alert(`❌ Failed: ${data.message || "Something went wrong"}`);
+      }
+    } catch (err) {
+      console.error("Error a  dding friend", err);
+    }
+  };
+
   // 🟢 إرسال رسالة
   const sendMessage = async () => {
     if (input.trim() === "" || !activeFriend) return;
@@ -143,6 +172,19 @@ const Chat = () => {
                     className="profile-img"
                   />
                   <span>{user.username}</span>
+                  <button
+                    onClick={() => handleAddFriend(user)}
+                    style={{
+                      padding: "4px 8px",
+                      background: "#d946ef",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "6px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Add Friend
+                  </button>
                 </div>
               ))}
             </div>
@@ -224,10 +266,6 @@ const Chat = () => {
       {/* ✅ Friends List Popup */}
       {showFriendsList && (
         <FriendsListPopup
-          friends={friends}
-          onRemove={(friend) =>
-            setFriends(friends.filter((f) => f._id !== friend._id))
-          }
           onClose={() => setShowFriendsList(false)}
         />
       )}
