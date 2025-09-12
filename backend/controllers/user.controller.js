@@ -72,16 +72,17 @@ const updateProfile = async (req, res) => {
 //? POST /api/user/search?=        (I WANT TO IMPLEMENT SEARCH FOR MESSAEGS AND CHAT AND ANOTHER FOR THE USER)
 const searchuser = async (req, res) => {
   try {
-    const {username,email}=req.query;
-    // console.log('{username,email}',{username,email}); 
+    const { username, email } = req.query;
+    // console.log('{username,email}',{username,email});
 
-    const resultOfSearch=await User.find({username:{$regex:username,$options:"i"}}).select("_id username email bio profilePicture") 
+    const resultOfSearch = await User.find({
+      username: { $regex: username, $options: "i" },
+    }).select("_id username email bio profilePicture");
 
     return res.status(200).json({
       status: httpStatus.SUCCESS,
       data: resultOfSearch,
     });
-    
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -91,23 +92,36 @@ const searchuser = async (req, res) => {
 const addFriends = async (req, res) => {
   try {
     const currentUser = req.user;
-    const { email, customName } = req.body;
-    const freind = await User.findOne({ email: email });
-    if (!freind) {
+    const { email, friendName } = req.body;
+    const friend = await User.findOne({ email: email });
+    if (!friend) {
       return res.status(404).json({
         status: httpStatus.FAIL,
         message: "no user found by this email",
       });
     }
-    if (freind.email == currentUser.email) {
+    if (friend.email == currentUser.email) {
       return res.status(404).status({
         status: httpStatus.FAIL,
         message: "you can not add yourself as a freind",
       });
     }
+
+    const isFriendBefor = await User.find({
+      _id: currentUser._id,
+      "friends.friend": friend._id,
+    });
+    if (isFriendBefor) {
+      return res
+        .status(400)
+        .json({
+          status: httpStatus.FAIL,
+          message: "you added this friend before",
+        });
+    }
     await User.updateOne(
       { _id: currentUser._id },
-      { $addToSet: { friends: { user: freind._id, customName } } }
+      { $addToSet: { friends: { friend: friend._id, friendName } } }
     );
     return res.status(201).json({
       status: httpStatus.SUCCESS,
@@ -124,7 +138,7 @@ const getFriends = async (req, res) => {
     const currentUser = req.user;
     const friends = await User.findOne({ _id: currentUser._id })
       .select("friends")
-      .populate({ path: "friends.user", select: "username email bio" });
+      .populate({ path: "friends.friend", select: "username email bio" });
     return res.status(200).json({ status: httpStatus.SUCCESS, data: friends });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -175,7 +189,7 @@ const removeFriend = async (req, res) => {
 
     await User.updateOne(
       { _id: currentUser._id },
-      { $pull: { friends: { user: friend._id } } }
+      { $pull: { friends: { friendId: friend._id } } }
     );
 
     return res.status(201).json({
@@ -258,10 +272,14 @@ const unblockUser = async (req, res) => {
 //? GET /api/user/blocked
 const getBlockedUsers = async (req, res) => {
   try {
-    const currentUser=req.user;
-    //? i will populate on the users and select the main info 
-    const blockedUsers=await User.findById(currentUser._id).populate("blockedUsers","username email bio profilePicture").select("_id username email bio profilePicture")
-    return res.status(200).json({status:httpStatus.SUCCESS,data:blockedUsers})
+    const currentUser = req.user;
+    //? i will populate on the users and select the main info
+    const blockedUsers = await User.findById(currentUser._id)
+      .populate("blockedUsers", "username email bio profilePicture")
+      .select("_id username email bio profilePicture");
+    return res
+      .status(200)
+      .json({ status: httpStatus.SUCCESS, data: blockedUsers });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

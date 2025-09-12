@@ -51,12 +51,12 @@ const userSchema = new mongoose.Schema(
     },
     friends: [
       {
-        user: {
+        friend: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
           required: true,
         },
-        customName: {
+        friendName: {
           type: String,
           required: true,
           trim: true,
