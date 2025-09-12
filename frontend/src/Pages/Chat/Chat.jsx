@@ -28,7 +28,7 @@ const Chat = () => {
     if (!customName) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/user/friends", {
+      const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/friends", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // الكوكي
@@ -58,7 +58,7 @@ const Chat = () => {
     setInput("");
 
     try {
-      await fetch(`http://localhost:5000/api/messages/${activeFriend._id}`, {
+      await fetch(`https://real-time-chat-backend-production-6f5c.up.railway.app/api/messages/${activeFriend._id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,7 +75,7 @@ const Chat = () => {
     if (!searchInput.trim()) return;
     try {
       const res = await fetch(
-        `http://localhost:5000/api/user/search?username=${searchInput}`,
+        `https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/search?username=${searchInput}`,
         {
           method: "GET",
           credentials: "include", // الكوكي هيتبعت أوتوماتيك

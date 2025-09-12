@@ -9,7 +9,7 @@ const BlockListPopup = ({ onClose }) => {
   useEffect(() => {
     const fetchBlockedUsers = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/user/blocked", {
+        const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/blocked", {
           method: "GET",
           credentials: "include", // عشان الكوكي يتبعت
         });

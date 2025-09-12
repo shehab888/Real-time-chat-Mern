@@ -9,7 +9,7 @@ const FriendsListPopup = ({ onClose }) => {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/user/friends", {
+        const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/friends", {
           method: "GET",
           credentials: "include",
         });
@@ -41,7 +41,7 @@ const FriendsListPopup = ({ onClose }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/user/friends/${friendId}`,
+        `https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/friends/${friendId}`,
         {
           method: "DELETE",
           credentials: "include",

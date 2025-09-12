@@ -9,7 +9,7 @@ const PrivateRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
+        const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/auth/me", {
           credentials: "include", // مهم للكويكي
         });
         if (res.ok) {
