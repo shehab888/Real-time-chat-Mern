@@ -32,7 +32,7 @@ const Register = () => {
         alert("✅ Account created successfully!");
         Navigate("/login");
       } else {
-        alert("❌ Error: " + data.message);
+        document.getElementById("error-message").innerText = data.message;
       }
     } catch (err) {
       console.error(err);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./ProfileUpdate.css";
+import { Link } from "react-router-dom";
 import avatarIcon from "../../assets/avatar_icon.png"; // استيراد الصورة
 const Profile = () => {
   const [avatar, setAvatar] = useState(""); // الرابط بدل الصورة المحلية
@@ -61,7 +62,19 @@ const Profile = () => {
   if (loading) return <p>⏳ Loading profile...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
+  // const BackToChat = () => {
+  //   window.location.href = "/chat";
+
+  // }
+
+
   return (
+   <div className="ProfilePage">
+    <div className="back-link">
+     <Link to="/chat">←</Link>
+    </div>
+        
+    
     <div className="container">
       <div className="profile-container">
         <h1 className="title">My Profile</h1>
@@ -105,6 +118,7 @@ const Profile = () => {
         </form>
       </div>
     </div>
+   </div> 
   );
 };
 
