@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Login.css";
 
 const Register = () => {
@@ -9,6 +9,8 @@ const Register = () => {
     password: "",
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -17,12 +19,13 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/api/auth/register", {
+      const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+        // credentials:true
       });
 
       const data = await res.json();
@@ -30,7 +33,7 @@ const Register = () => {
 
       if (res.ok) {
         alert("✅ Account created successfully!");
-        Navigate("/login");
+        navigate("/login");
       } else {
         document.getElementById("error-message").innerText = data.message;
       }

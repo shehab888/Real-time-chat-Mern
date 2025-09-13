@@ -20,15 +20,15 @@ const register = async (req, res) => {
 
     const newUser = new User({
       ...reqBody,
-      isVerified:false, //? make it false if the user tried to make it true it will be updated and the db will take the last
-      password: hashedPassword, 
+      isVerified: false, //? make it false if the user tried to make it true it will be updated and the db will take the last
+      password: hashedPassword,
     });
 
     //? create the token for verifying the email and send it to the cookies
     const email_verify_token = jwt.sign(
       { _id: newUser._id },
       process.env.EMAIL_SECRET_KEY,
-      { expiresIn: "15m" }
+      { expiresIn: "30m" }
     );
     res.cookie("email_verify_token", email_verify_token, {
       httpOnly: true,
@@ -38,17 +38,14 @@ const register = async (req, res) => {
     // req.userEmail=newUser.email
     //? save the user in the db before the sent of the email to check if something of the data repeated like email or not
     await newUser.save();
-    
+
     await sendEmail(
       newUser.email,
       "verify the email",
       `<p>click <a href=${url}>here</a> to verify your email</p>`
     );
 
-    return res
-      .status(201)
-      .json({ status: httpStatus.SUCCESS, data: newUser })
-      .select({ __v: false });
+    return res.status(201).json({ status: httpStatus.SUCCESS, data: newUser });
   } catch (error) {
     res.status(500).json({ status: httpStatus.ERROR, message: error.message });
   }
@@ -67,7 +64,9 @@ const login = async (req, res) => {
     }
     // console.log('************');
 
-    const user = await User.findOne({ email: email }).select({privacy:false});
+    const user = await User.findOne({ email: email }).select({
+      privacy: false,
+    });
     console.log(user);
 
     if (!user) {
@@ -83,7 +82,7 @@ const login = async (req, res) => {
         message: "email or password is not correct",
       });
     }
-    //? check the user verification 
+    //? check the user verification
     //! not enabled for testing
     // if (!user.isVerified) {
     //   return res.status(403).json({
@@ -227,8 +226,8 @@ const forgotPassword = async (req, res) => {
         message: "no user found by this email",
       });
     }
-    console.log('user',user);
-    
+    console.log("user", user);
+
     const reset_verify_email = jwt.sign(
       { _id: user._id },
       process.env.FORGET_SECRET_KEY,
@@ -244,14 +243,18 @@ const forgotPassword = async (req, res) => {
       "reset your password",
       `<p>click <a href=${url}>here</a> to reset your password</p>`
     );
-    return res.status(200).json({status:httpStatus.SUCCESS,message:"the email of reset password has been sent successfuly"})
+    return res.status(200).json({
+      status: httpStatus.SUCCESS,
+      message: "the email of reset password has been sent successfuly",
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
 //? POST /api/auth/reset-password/:token
-const resetPassword = async (req, res) => {  //! use the bcrypt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+const resetPassword = async (req, res) => {
+  //! use the bcrypt !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   try {
     const { reset_password_token } = req.params;
     const { password } = req.body;
@@ -265,28 +268,23 @@ const resetPassword = async (req, res) => {  //! use the bcrypt !!!!!!!!!!!!!!!!
         message: "the token of reset the password not valid",
       });
     }
-    const user = await User.findOne({_id:decode._id}).select(
+    const user = await User.findOne({ _id: decode._id }).select(
       "username email"
     );
     if (!user) {
-      return res
-        .status(404)
-        .json({
-          status: httpStatus.FAIL,
-          message: "no found user by this jwt token",
-        });
+      return res.status(404).json({
+        status: httpStatus.FAIL,
+        message: "no found user by this jwt token",
+      });
     }
-    const hashedPassword=await bcrypt.hash(password,10)
-    await User.updateOne({_id:user._id},{password:hashedPassword})
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await User.updateOne({ _id: user._id }, { password: hashedPassword });
 
-    return (
-      res.status(200)
-      .json({
-        status: httpStatus.SUCCESS,
-        data: user,
-        message: "user password updated successfuly",
-      })
-    );
+    return res.status(200).json({
+      status: httpStatus.SUCCESS,
+      data: user,
+      message: "user password updated successfuly",
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

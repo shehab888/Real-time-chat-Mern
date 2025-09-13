@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import avatarIcon from "../../assets/avatar_icon.png"; // استيراد الصورة
 const Profile = () => {
   const [avatar, setAvatar] = useState(""); // الرابط بدل الصورة المحلية
-  const [name, setName] = useState("");
+  const [username, setName] = useState("");
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
   const [loading, setLoading] = useState(true);
@@ -14,10 +14,11 @@ const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/auth/me", {
+        const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/auth/me", {
           credentials: "include",
         });
         const data = await res.json();
+        console.log("data=============",data)
         if (res.ok) {
           setName(data.name || data.data?.username || "");
           setEmail(data.email || data.data?.email || "");
@@ -42,11 +43,11 @@ const Profile = () => {
     setSuccess("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/user/profile", {
+      const res = await fetch("http://real-time-chat-backend-production-6f5c.up.railway.app/api/user/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ name, bio, profilePicture: avatar }),
+        body: JSON.stringify({ username, bio, profilePicture: avatar }),
       });
 
       const data = await res.json();
@@ -101,7 +102,7 @@ const Profile = () => {
           <label>Name</label>
           <input
             type="text"
-            value={name}
+            value={username}
             onChange={(e) => setName(e.target.value)}
           />
 
