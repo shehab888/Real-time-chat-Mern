@@ -98,6 +98,14 @@ const Chat = () => {
   };
 
   return (
+  <>
+          <header className="header">
+            <div>
+              <Link to={"/"} style={{ color: "white", fontSize: "18px" }}>
+                <strong>SweetTalk</strong>
+              </Link>
+            </div>
+            </header>
     <div className="chat-container">
       {/* Sidebar */}
       <div className="sidebar">
@@ -270,6 +278,7 @@ const Chat = () => {
         />
       )}
     </div>
+    </>
   );
 };
 

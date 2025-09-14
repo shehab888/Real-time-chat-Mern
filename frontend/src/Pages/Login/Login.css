@@ -3,6 +3,19 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
+  min-height: 75vh;
+}
+
+.header-content{
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .login {

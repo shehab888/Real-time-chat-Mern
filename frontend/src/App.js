@@ -5,7 +5,6 @@ import Login from "./Pages/Login/Login";
 import Register from "./Pages/Login/Register";
 import Home from "./Pages/Home/Home";
 import { Routes, Route, useLocation } from "react-router-dom";
-import Header from "./Components/Header";
 import Footer from "./Components/Footer";
 import { AnimatePresence, motion } from "framer-motion";
 import PrivateRoute from "./Components/PrivateRoute";
@@ -95,7 +94,7 @@ function AnimatedRoutes() {
 function App() {
   return (
     <>
-      <Header />
+      {/* <Header /> */}
       <AnimatedRoutes />
       <Footer />
     </>
