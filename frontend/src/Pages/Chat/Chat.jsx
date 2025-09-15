@@ -6,6 +6,7 @@ import "./Chat.css";
 import profilealison from "../../assets/profile_alison.png";
 import block from "../../assets/block.png";
 import info from "../../assets/help_icon.png";
+import avatarIcon from "../../assets/avatar_icon.png";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -20,32 +21,80 @@ const Chat = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchResults, setSearchResults] = useState([]);
 
-
-
   // 🟢 جلب قائمة الأصدقاء والبلوكد يوزرز من السيرفر
   const handleAddFriend = async (user) => {
     const customName = prompt(`Enter a custom name for ${user.username}:`);
     if (!customName) return;
 
     try {
-      const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/friends", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // الكوكي
-        body: JSON.stringify({
-          email: user.email,
-          customName: customName,
-        }),
-      });
+      const res = await fetch(
+        "https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/friends",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include", // الكوكي
+          body: JSON.stringify({
+            email: user.email,
+            friendName: customName,
+          }),
+        }
+      );
 
       const data = await res.json();
       if (res.ok) {
         alert("✅ Friend added successfully!");
+        CreateChat(user); // افتح الشات مع الصديق الجديد
       } else {
         alert(`❌ Failed: ${data.message || "Something went wrong"}`);
       }
     } catch (err) {
       console.error("Error a  dding friend", err);
+    }
+  };
+
+  const CreateChat = async (user) => {
+    try {
+      console.log("Creating chat with user ID:", user);
+      const res = await fetch(
+        "https://real-time-chat-backend-production-6f5c.up.railway.app/api/chat",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include", // الكوكي
+          body: JSON.stringify({
+            participants: [user._id],
+          }),
+        }
+      );
+
+      const data = await res.json();
+      if (res.ok) {
+      } else {
+        alert(`❌ Failed: ${data.message || "Something went wrong"}`);
+      }
+    } catch (err) {
+      console.error("Error creating chat", err);
+    }
+  };
+
+  const Logout = async () => {
+    try {
+      const res = await fetch(
+        "https://real-time-chat-backend-production-6f5c.up.railway.app/api/auth/logout",
+        {
+          method: "POST",
+          credentials: "include", // الكوكي
+        }
+      );
+      const data = await res.json();
+      if (res.ok) {
+        alert("✅ Logged out successfully!");
+        // Redirect to login or home page if needed
+      } else {
+        alert(`❌ Failed: ${data.message || "Something went wrong"}`);
+      }
+    } catch (err) {
+      console.error("Error logging out", err);
     }
   };
 
@@ -58,13 +107,16 @@ const Chat = () => {
     setInput("");
 
     try {
-      await fetch(`https://real-time-chat-backend-production-6f5c.up.railway.app/api/messages/${activeFriend._id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: input }),
-      });
+      await fetch(
+        `https://real-time-chat-backend-production-6f5c.up.railway.app/api/messages/${activeFriend._id}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text: input }),
+        }
+      );
     } catch (err) {
       console.error("Error sending message", err);
     }
@@ -98,7 +150,7 @@ const Chat = () => {
   };
 
   return (
-  <>
+    <>
           <header className="header">
             <div>
               <Link to={"/"} style={{ color: "white", fontSize: "18px" }}>
@@ -110,11 +162,7 @@ const Chat = () => {
       {/* Sidebar */}
       <div className="sidebar">
         <div className="profile-section">
-          <img
-            src="https://i.pravatar.cc/40"
-            alt="User"
-            className="profile-img"
-          />
+          <img src={avatarIcon} alt="User" className="profile-img" />
 
           {/* Search in the middle */}
           <div className="search-box">
@@ -123,6 +171,7 @@ const Chat = () => {
               placeholder="Search by username..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
             <button onClick={handleSearch}>🔍</button>
           </div>
@@ -159,6 +208,9 @@ const Chat = () => {
               >
                 Friends List
               </div>
+              <div className="dropdown-item" onClick={Logout}>
+                Logout
+              </div>
             </div>
           )}
         </div>
@@ -175,7 +227,7 @@ const Chat = () => {
                   // onClick={() => openChat(user)}
                 >
                   <img
-                    src={user.profilePicture || "https://i.pravatar.cc/30"}
+                    src={user.profilePicture || avatarIcon}
                     alt="avatar"
                     className="profile-img"
                   />
@@ -198,13 +250,13 @@ const Chat = () => {
             </div>
           )}
 
-          {friends.map((friend) => (
+          {friends.map((chat) => (
             <div
-              key={friend._id}
+              key={chat._id}
               className="sidebar-item"
               // onClick={() => openChat(friend)}
             >
-              🟢 {friend.username}
+              🟢 {chat.username}
             </div>
           ))}
         </div>
@@ -212,70 +264,58 @@ const Chat = () => {
 
       {/* Chat Area */}
       <div className="chat-area">
-        {activeFriend ? (
-          <>
-            {/* Header */}
-            <div className="chat-header">
-              <img src={profilealison} alt="" className="profilephoto" />
-              <p className="profilename">{activeFriend.username}</p>
-              <img src={block} alt="" className="blockicon" />
-              <img src={info} alt="" className="infoicon" />
-            </div>
+        <>
+          {/* Header */}
+          <div className="chat-header">
+            <img src={profilealison} alt="" className="profilephoto" />
+            <p className="profilename">{activeFriend.username}</p>
+            <img src={block} alt="" className="blockicon" />
+            <img src={info} alt="" className="infoicon" />
+          </div>
 
-            {/* Messages */}
-            <div className="messages">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`message ${msg.sender === "me" ? "me" : "other"}`}
-                >
-                  {msg.text}
-                </div>
-              ))}
-            </div>
+          {/* Messages */}
+          <div className="messages">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`message ${msg.sender === "me" ? "me" : "other"}`}
+              >
+                {msg.text}
+              </div>
+            ))}
+          </div>
 
-            {/* Input */}
-            <div className="chat-input">
+          {/* Input */}
+          <div className="chat-input">
+            <input
+              type="text"
+              placeholder="Type a message..."
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            />
+
+            <label className="b1">
+              📎
               <input
-                type="text"
-                placeholder="Type a message..."
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                type="file"
+                style={{ display: "none" }}
+                accept="image/*,video/*,.pdf,.doc,.docx"
               />
-
-              <label className="b1">
-                📎
-                <input
-                  type="file"
-                  style={{ display: "none" }}
-                  accept="image/*,video/*,.pdf,.doc,.docx"
-                />
-              </label>
-              <button onClick={sendMessage}>➤</button>
-            </div>
-          </>
-        ) : (
-          <div className="chat-placeholder">اختر صديق لبدء المحادثة</div>
-        )}
+            </label>
+            <button onClick={sendMessage}>➤</button>
+          </div>
+        </>
       </div>
 
       {/* ✅ Block List Popup */}
       {showBlockList && (
-        <BlockListPopup
-          blockedUsers={blockedUsers}
-          onUnblock={(user) =>
-            setBlockedUsers(blockedUsers.filter((u) => u._id !== user._id))
-          }
-          onClose={() => setShowBlockList(false)}
-        />
+        <BlockListPopup onClose={() => setShowBlockList(false)} />
       )}
 
       {/* ✅ Friends List Popup */}
       {showFriendsList && (
-        <FriendsListPopup
-          onClose={() => setShowFriendsList(false)}
-        />
+        <FriendsListPopup onClose={() => setShowFriendsList(false)} />
       )}
     </div>
     </>
