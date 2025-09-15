@@ -44,75 +44,84 @@ const Register = () => {
   };
 
   return (
-    <div className="container">
-      <div className="login">
-        <form className="login-form" onSubmit={handleSubmit}>
-          {/* Username */}
-          <div className="form-group">
-            <label className="form-label">Username</label>
-            <input
-              type="text"
-              name="username"
-              placeholder="Enter your username"
-              className="inp username"
-              required
-              value={formData.username}
-              onChange={handleChange}
-            />
-          </div>
+    <>
+      <header>
+        <div>
+          <Link to={"/"} style={{ color: "white", fontSize: "18px" }}>
+            <strong>SweetTalk</strong>
+          </Link>
+        </div>
+      </header>
+      <div className="container">
+        <div className="login">
+          <form className="login-form" onSubmit={handleSubmit}>
+            {/* Username */}
+            <div className="form-group">
+              <label className="form-label">Username</label>
+              <input
+                type="text"
+                name="username"
+                placeholder="Enter your username"
+                className="inp username"
+                required
+                value={formData.username}
+                onChange={handleChange}
+              />
+            </div>
 
-          {/* Email */}
-          <div className="form-group">
-            <label className="form-label">E-mail</label>
-            <input
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              className="inp email"
-              required
-              value={formData.email}
-              onChange={handleChange}
-            />
-          </div>
+            {/* Email */}
+            <div className="form-group">
+              <label className="form-label">E-mail</label>
+              <input
+                type="email"
+                name="email"
+                placeholder="Enter your email"
+                className="inp email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
 
-          {/* Password */}
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Enter your password"
-              className="inp password"
-              required
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
+            {/* Password */}
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                className="inp password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
 
-          {/* Terms */}
-          <div className="login-terms">
-            <input type="checkbox" className="checkbox" id="terms" />
-            <p>Agree to our Terms of Service and Privacy Policy.</p>
-          </div>
+            {/* Terms */}
+            <div className="login-terms">
+              <input type="checkbox" className="checkbox" id="terms" />
+              <p>Agree to our Terms of Service and Privacy Policy.</p>
+            </div>
 
-          {/* Button */}
-          <button type="submit" className="login-button">
-            Create Account
-          </button>
+            {/* Button */}
+            <button type="submit" className="login-button">
+              Create Account
+            </button>
 
-          {/* Link to Login */}
-          <div className="login-forgot">
-            <p>
-              Already have an account?{" "}
-              <Link to="/login" className="create-account-btn">
-                Back to Login
-              </Link>
-            </p>
-          </div>
-        </form>
+            {/* Link to Login */}
+            <div className="login-forgot">
+              <p>
+                Already have an account?{" "}
+                <Link to="/login" className="create-account-btn">
+                  Back to Login
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
-    </div>
-  );
+      </>
+      );
 };
 
-export default Register;
+      export default Register;

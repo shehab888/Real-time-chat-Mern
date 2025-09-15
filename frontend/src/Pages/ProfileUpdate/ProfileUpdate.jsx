@@ -18,7 +18,7 @@ const Profile = () => {
           credentials: "include",
         });
         const data = await res.json();
-        console.log("data=============",data)
+        console.log("data=============", data)
         if (res.ok) {
           setName(data.name || data.data?.username || "");
           setEmail(data.email || data.data?.email || "");
@@ -70,57 +70,66 @@ const Profile = () => {
 
 
   return (
-   <div className="ProfilePage">
-    <div className="back-link">
-     <Link to="/chat">←</Link>
-    </div>
-        
-    
-    <div className="container">
-      <div className="profile-container">
-        <h1 className="title">My Profile</h1>
-
-        {/* Profile Image الدائرية */}
-        <div className="profile-pic">
-          <img
-            src={avatar || avatarIcon} // صورة افتراضية لو مفيش رابط
-            alt="Profile"
-            className="avatar-circle"
-          />
+    <>
+      <header className="header">
+        <div>
+          <Link to={"/"} style={{ color: "white", fontSize: "18px" }}>
+            <strong>SweetTalk</strong>
+          </Link>
         </div>
+        </header>
+        <div className="ProfilePage">
+          <div className="back-link">
+            <Link to="/chat">←</Link>
+          </div>
 
-        {/* Info Form */}
-        <form className="profile-form" onSubmit={handleSubmit}>
-          {/* Input للرابط */}
-          <label>Profile Image URL</label>
-          <input
-            type="text"
-            placeholder="Paste image URL here"
-            value={avatar}
-            onChange={(e) => setAvatar(e.target.value)}
-          />
-          <label>Name</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setName(e.target.value)}
-          />
 
-          <label>Email</label>
-          <input type="email" value={email} disabled />
+          <div className="container">
+            <div className="profile-container">
+              <h1 className="title">My Profile</h1>
 
-          <label>Bio</label>
-          <textarea value={bio} onChange={(e) => setBio(e.target.value)} />
+              {/* Profile Image الدائرية */}
+              <div className="profile-pic">
+                <img
+                  src={avatar || avatarIcon} // صورة افتراضية لو مفيش رابط
+                  alt="Profile"
+                  className="avatar-circle"
+                />
+              </div>
 
-          <button type="submit" className="save-btn">
-            Save Changes
-          </button>
-          {success && <p style={{ color: "green" }}>{success}</p>}
-        </form>
-      </div>
-    </div>
-   </div> 
+              {/* Info Form */}
+              <form className="profile-form" onSubmit={handleSubmit}>
+                {/* Input للرابط */}
+                <label>Profile Image URL</label>
+                <input
+                  type="text"
+                  placeholder="Paste image URL here"
+                  value={avatar}
+                  onChange={(e) => setAvatar(e.target.value)}
+                />
+                <label>Name</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setName(e.target.value)}
+                />
+
+                <label>Email</label>
+                <input type="email" value={email} disabled />
+
+                <label>Bio</label>
+                <textarea value={bio} onChange={(e) => setBio(e.target.value)} />
+
+                <button type="submit" className="save-btn">
+                  Save Changes
+                </button>
+                {success && <p style={{ color: "green" }}>{success}</p>}
+              </form>
+            </div>
+          </div>
+        </div>
+    </>
   );
 };
 
-export default Profile;
+      export default Profile;

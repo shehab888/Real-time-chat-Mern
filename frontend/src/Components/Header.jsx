@@ -9,7 +9,6 @@ function Header() {
       </div>
       <nav>
         <a href="#features">Features</a>
-        <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
       </nav>
     </header>
