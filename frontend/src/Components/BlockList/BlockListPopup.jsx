@@ -42,7 +42,7 @@ const BlockListPopup = ({ onClose }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/api/user/unblock/${userId}`,
+        `https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/unblock/${userId}`,
         {
           method: "Post",
           credentials: "include",

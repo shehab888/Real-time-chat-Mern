@@ -9,10 +9,13 @@ const FriendsListPopup = ({ onClose }) => {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/friends", {
-          method: "GET",
-          credentials: "include",
-        });
+        const res = await fetch(
+          "https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/friends",
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
 
         const data = await res.json();
         console.log("Fetched friends:", data.data.friends);
@@ -38,7 +41,7 @@ const FriendsListPopup = ({ onClose }) => {
       "Are you sure you want to remove this friend?"
     );
     if (!confirmDelete) return;
-
+    console.log("Removing friend with ID: ", friendId);
     try {
       const res = await fetch(
         `https://real-time-chat-backend-production-6f5c.up.railway.app/api/user/friends/${friendId}`,
@@ -50,7 +53,7 @@ const FriendsListPopup = ({ onClose }) => {
 
       if (res.ok) {
         // امسح من الليستة
-        setFriends((prev) => prev.filter((f) => f.user._id !== friendId));
+        setFriends((prev) => prev.filter((f) => f._id !== friendId));
         // بعد ما يتم المسح اقفل البوب أب
         onClose();
       } else {
@@ -77,10 +80,10 @@ const FriendsListPopup = ({ onClose }) => {
           ) : friends.length > 0 ? (
             friends.map((friend) => (
               <div key={friend._id} className="friend-item">
-                <span>👤 {friend.customName}</span>
+                <span>👤 {friend.friendName}</span>
                 <button
                   className="remove-btn"
-                  onClick={() => handleRemoveFriend(friend.user._id)}
+                  onClick={() => handleRemoveFriend(friend.friend._id)}
                 >
                   🗑️ Remove
                 </button>
