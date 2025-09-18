@@ -1,54 +1,18 @@
-import { useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
+import useAuthStore from "../store/useAuthStore";
 
-const PrivateRoute = ({ children }) => {
-  const [loading, setLoading] = useState(true);
-  const [isAuth, setIsAuth] = useState(false);
-  const [error, setError] = useState("");
+const PrivateRoute = () => {
+  const user = useAuthStore((state) => state.user);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/auth/me", {
-          credentials: "include", // مهم للكويكي
-        });
-        if (res.ok) {
-          setIsAuth(true);
-        } else {
-          setIsAuth(false);
-        }
-      } catch (err) {
-        setIsAuth(false);
-        setError("❌ Error checking authentication");
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
 
-    checkAuth();
-  }, []);
+  if (user && !user.isVerified) {
+    return <Navigate to="/verify-email" replace />;
+  }
 
-  if (loading)
-    return (
-      <div
-        className="loading"
-        style={{ textAlign: "center", marginTop: "50px" }}
-      >
-        ⏳ Loading...
-      </div>
-    );
-
-  if (error)
-    return (
-      <div
-        className="loading"
-        style={{ textAlign: "center", color: "red", marginTop: "50px" }}
-      >
-        {error}
-      </div>
-    );
-
-  return isAuth ? children : <Navigate to="/login" />;
+  return <Outlet />;
 };
 
 export default PrivateRoute;

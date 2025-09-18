@@ -1,45 +1,38 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import useAuthStore from "../../store/useAuthStore";
+import { login } from "../../api/authApi";
 import "./Login.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+  const { setUser } = useAuthStore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("https://real-time-chat-backend-production-6f5c.up.railway.app/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-        credentials: "include", // 👈 مهم جدًا عشان الكوكي يتخزن
-      });
+      setLoading(true);
+      setError("");
 
-      const data = await res.json();
-
-      if (res.ok) {
-        navigate("/chat"); // ✅ بعد تسجيل الدخول روح للشات
-      } else {
-        setError(data.message || "Login failed");
-      }
+      const res = await login({ email, password }); // 👈 استدعاء login من الـ api
+      setUser(res.data.data); // 👈 نحط بيانات اليوزر في zustand
+      console.log("Login successful:", res.data.data);
+      navigate("/chat"); // ✅ روح للشات
     } catch (err) {
-      setError("Something went wrong");
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <>
-      <header>
-        <div>
-          <Link to={"/"} style={{ color: "white", fontSize: "18px" }}>
-            <strong>SweetTalk</strong>
-          </Link>
-        </div>
-      </header>
       <div className="container">
         <div className="login">
           <form className="login-form" onSubmit={handleSubmit}>
@@ -69,38 +62,25 @@ const Login = () => {
               />
             </div>
 
-            {/* Remember Me */}
-            <div className="checkbox-group">
-              <input
-                type="checkbox"
-                className="checkbox"
-                id="remember"
-                defaultChecked
-              />
-              <label htmlFor="remember" className="checkbox-label">
-                Remember Me
-              </label>
-            </div>
-
-            {/* Error Message */}
+            {/* Error */}
             {error && <p style={{ color: "red" }}>{error}</p>}
 
             {/* Button */}
-            <button type="submit" className="login-button">
-              Log In
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? "Logging in..." : "Log In"}
             </button>
 
             {/* Links */}
-            {/* <div className="forgot-links">
+            <div className="forgot-links">
               <Link to="/forgot" className="forgot-link">
                 Forgot your password?
               </Link>
               <Link to="/reset" className="forgot-link reset-link">
                 Reset Password
               </Link>
-            </div> */}
+            </div>
 
-            {/* Link to Register */}
+            {/* Register */}
             <div className="login-forgot">
               <p>
                 Don't have an account?{" "}
