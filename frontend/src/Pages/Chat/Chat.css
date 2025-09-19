@@ -180,7 +180,7 @@ header {
 }
 
 .chat-input button {
-  background-color: #d946ef;
+  background-color: #1f2937;
   border: none;
   border-radius: 50%;
   width: 45px;
@@ -216,7 +216,7 @@ header {
   margin-right: 5px;
 }
 
-.profilephoto {
+.chat-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -224,7 +224,7 @@ header {
   vertical-align: middle;
 }
 
-.profilename {
+.chat-name {
   display: inline;
   margin-left: 10px;
   font-weight: bold;

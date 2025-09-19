@@ -117,7 +117,6 @@ header nav a:hover {
 }
 
 .features,
-.pricing,
 .faq {
   max-width: 1200px;
   margin: auto;
@@ -133,11 +132,6 @@ header nav a:hover {
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1.5rem;
   border-radius: 12px;
-}
-.pricing-grid {
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 .plan {
   background: rgba(255, 255, 255, 0.05);
@@ -161,6 +155,32 @@ footer {
   padding: 2rem;
   text-align: center;
   color: rgba(255, 255, 255, 0.6);
+}
+
+/* Generic scroll styling for the whole website */
+.scrollbar {
+  overflow-y: auto;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #4a90e2 #1e1e2f; /* Firefox: thumb + track */
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: #1e1e2f;
+  border-radius: 4px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4a90e2;
+  border-radius: 4px;
+  border: 2px solid #1e1e2f; /* padding effect */
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #357ab8;
 }
 
 @media (max-width: 768px) {

@@ -6,6 +6,7 @@ import Register from "./pages/Login/Register";
 import VerifyEmail from "./pages/verifyEmail/verifyEmail";
 import VerifyEmailToken from "./pages/verifyEmail/verifyEmailToken";
 import Profile from "./pages/ProfileUpdate/ProfileUpdate";
+import ChatPage from "./pages/Chat/Chat";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
+        <Route path="/chat" element={<ChatPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/verify-email/:token" element={<VerifyEmailToken />} />
