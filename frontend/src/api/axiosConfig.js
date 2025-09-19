@@ -8,33 +8,62 @@ const api = axios.create({
 });
 
 // Interceptor to handle 401 responses and refresh token
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const { clearAuth } = useAuthStore.getState();
+    const { setUser } = useAuthStore.getState();
 
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // 🟢 لو فيه refresh شغال → استنى
+        return new Promise(function (resolve, reject) {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => api(originalRequest))
+          .catch((err) => Promise.reject(err));
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
+
       try {
         // 🟢 جرب تعمل refresh
         await api.post("/auth/refresh-token");
 
-        // 🟢 بعد ما تعمل refresh ارجع جيب بيانات اليوزر من /auth/me
+        // 🟢 هات بيانات اليوزر
         const me = await api.get("/auth/me");
         if (me.data) {
-          useAuthStore.getState().setUser(me.data);
+          setUser(me.data);
         }
 
-        // 🟢 رجع الطلب الأصلي
+        processQueue(null); // ✅ فك الانتظار
         return api(originalRequest);
       } catch (refreshError) {
-        console.error("Refresh token expired or invalid:", refreshError);
+        processQueue(refreshError, null);
 
-        // 🛑 امسح كل حاجة من store + localStorage
-        clearAuth(true);
+        // 🛑 بدل clearAuth → نحط user = null في localStorage
+        setUser(null);
 
         window.location.href = "/login";
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 

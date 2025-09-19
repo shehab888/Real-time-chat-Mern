@@ -9,7 +9,7 @@ const useAuthStore = create(
       clearAuth: (full = false) => {
         set({ user: null });
         if (full) {
-          localStorage.removeItem("auth-storage"); // 🛑 امسح كل الداتا
+          localStorage.clear; // 🛑 امسح كل الداتا
         }
       },
     }),

@@ -7,7 +7,7 @@ import { logout } from "../../api/authApi";
 import "./Header.css";
 
 function Header() {
-  const { user, clearAuth } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const [showMenu, setShowMenu] = useState(false);
   const [showBlockList, setShowBlockList] = useState(false);
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ function Header() {
   const handleLogout = async () => {
     try {
       await logout();
-      clearAuth(true);
+      setUser(null);
       navigate("/login");
     } catch (err) {
       console.error("Logout failed:", err);
