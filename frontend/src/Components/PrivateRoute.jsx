@@ -1,12 +1,8 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
 
-const PrivateRoute = () => {
-  const user = useAuthStore((state) => state.user);
-  console.log("PrivateRoute user:", user);
-  if (user === undefined) {
-    return <p>Loading...</p>;
-  }
+const PrivateRoute = ({ children }) => {
+  const { user } = useAuthStore();
 
   if (!user) {
     return <Navigate to="/login" replace />;
@@ -16,7 +12,7 @@ const PrivateRoute = () => {
     return <Navigate to="/verify-email" replace />;
   }
 
-  return <Outlet />;
+  return children;
 };
 
 export default PrivateRoute;

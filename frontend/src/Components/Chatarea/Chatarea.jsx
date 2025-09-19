@@ -44,7 +44,7 @@ const ChatArea = ({ chat, type }) => {
           alt="avatar"
           className="chat-avatar"
         />
-        <p className="chat-name">{chat.name || chat.username}</p>
+        <p className="chat-name">{chat.name || chat.friendName || chat.username}</p>
       </div>
 
       {/* Messages */}

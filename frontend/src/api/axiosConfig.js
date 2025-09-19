@@ -12,25 +12,28 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const { clearAuth } = useAuthStore.getState();
 
-    const { clearAuth } = useAuthStore.getState(); // نجيب الدالة مباشرة من Zustand store
-
-    // لو 401 والطلب ما اتعملش retry قبل كدا
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
-        // نحاول نعمل refresh token
-        await api.post("/auth/refresh");
+        // 🟢 جرب تعمل refresh
+        await api.post("/auth/refresh-token");
 
-        // نعيد تنفيذ الطلب الأصلي
+        // 🟢 بعد ما تعمل refresh ارجع جيب بيانات اليوزر من /auth/me
+        const me = await api.get("/auth/me");
+        if (me.data) {
+          useAuthStore.getState().setUser(me.data);
+        }
+
+        // 🟢 رجع الطلب الأصلي
         return api(originalRequest);
       } catch (refreshError) {
         console.error("Refresh token expired or invalid:", refreshError);
 
-        // نمسح بيانات user من store
-        clearAuth();
+        // 🛑 امسح كل حاجة من store + localStorage
+        clearAuth(true);
 
-        // نعمل redirect للـ login
         window.location.href = "/login";
       }
     }

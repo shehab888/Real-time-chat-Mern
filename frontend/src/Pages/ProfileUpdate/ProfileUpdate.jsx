@@ -68,14 +68,6 @@ const Profile = () => {
 
   return (
     <>
-      <header className="header">
-        <div>
-          <Link to={"/"} style={{ color: "white", fontSize: "18px" }}>
-            <strong>SweetTalk</strong>
-          </Link>
-        </div>
-      </header>
-
       <div className="ProfilePage">
         <div className="back-link">
           <Link to="/chat">←</Link>

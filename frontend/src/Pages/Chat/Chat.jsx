@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar/sideBar";
 import ChatArea from "../../components/Chatarea/Chatarea";
 import "./Chat.css";
@@ -8,6 +8,7 @@ const ChatPage = () => {
   const [activeType, setActiveType] = useState("chat"); // chat | friend
 
   const handleSelect = (item, type) => {
+    console.log("Selected item:", item, "of type:", type);
     setActiveChat(item);
     setActiveType(type);
   };

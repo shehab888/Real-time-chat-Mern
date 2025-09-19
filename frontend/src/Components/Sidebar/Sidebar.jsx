@@ -34,6 +34,7 @@ const Sidebar = ({ onSelect }) => {
     try {
       const res = await getAllChats();
       const data = extractData(res);
+      
       setChats(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("fetchChats error:", err);

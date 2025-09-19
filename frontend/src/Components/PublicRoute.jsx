@@ -1,21 +1,15 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
 
-const PublicRoute = () => {
-  const user = useAuthStore((state) => state.user);
-  console.log("PublicRoute user:", user);
-  if (user === undefined) {
-    return <p>Loading...</p>; // 👈 نفس فكرة PrivateRoute
-  }
+const PublicRoute = ({ children }) => {
+  const { user } = useAuthStore();
 
   if (user) {
-    if (user.isVerified) {
-      return <Navigate to="/chat" replace />;
-    }
-    return <Navigate to="/verify-email" replace />;
+    // لو مسجل دخول بالفعل يروح للـ Home
+    return <Navigate to="/" replace />;
   }
 
-  return <Outlet />;
+  return children;
 };
 
 export default PublicRoute;

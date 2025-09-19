@@ -23,5 +23,4 @@ export const resendVerificationEmail = (email) =>
   api.post("/auth/resend-verification", { email }, { withCredentials: true });
 
 export const getMe = () => api.get("/auth/me");
-export const logout = () => api.post("/authَ/logout");
-export const refreshToken = () => api.get("/auth/refresh");
+export const logout = () => api.post("/auth/logout");
