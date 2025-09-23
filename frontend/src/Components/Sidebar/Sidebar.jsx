@@ -8,7 +8,7 @@ import {
 } from "../../api/userApi";
 import { getAllChats } from "../../api/chatApi";
 import useAuthStore from "../../store/useAuthStore";
-
+import { getMe } from "../../api/authApi";
 const Sidebar = ({ onSelect }) => {
   const user = useAuthStore((state) => state.user);
   const setUser = useAuthStore((state) => state.setUser);
@@ -34,7 +34,7 @@ const Sidebar = ({ onSelect }) => {
     try {
       const res = await getAllChats();
       const data = extractData(res);
-      
+
       setChats(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("fetchChats error:", err);
@@ -73,11 +73,8 @@ const Sidebar = ({ onSelect }) => {
     try {
       await apiAddFriend(foundUser.email, friendName);
       // update zustand user friends immediately (so button hides)
-      const newFriend = { ...foundUser, friendName };
-      setUser({
-        ...user,
-        friends: [...(user?.friends || []), newFriend],
-      });
+      const res = await getMe();
+      setUser(res.data.data);
       // mark the search result as justAdded (instant UI feedback)
       setSearchResults((prev) =>
         prev.map((u) =>
@@ -98,7 +95,7 @@ const Sidebar = ({ onSelect }) => {
       await apiDeleteFriend(friendId);
       setUser({
         ...user,
-        friends: (user?.friends || []).filter((f) => f._id !== friendId),
+        friends: (user?.friends || []).filter((f) => f.friend !== friendId),
       });
     } catch (err) {
       console.error("deleteFriend error:", err);

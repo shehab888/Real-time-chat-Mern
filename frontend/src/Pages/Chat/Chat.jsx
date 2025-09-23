@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Sidebar from "../../components/Sidebar/sideBar";
+import Sidebar from "../../components/Sidebar/Sidebar";
 import ChatArea from "../../components/Chatarea/Chatarea";
 import "./Chat.css";
 
@@ -18,8 +18,8 @@ const ChatPage = () => {
       <div className="chat-container">
         <Sidebar onSelect={handleSelect} />
 
-        {activeChat ? (
-          <ChatArea chat={activeChat} type={activeType} />
+        {activeChat && (activeType === "chat" || activeType === "friend") ? (
+          <ChatArea chat={activeChat} />
         ) : (
           <div className="chat-area">
             <div className="messages">

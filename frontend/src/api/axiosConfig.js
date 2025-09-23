@@ -7,63 +7,30 @@ const api = axios.create({
   withCredentials: true, // Auto send cookies with requests
 });
 
-// Interceptor to handle 401 responses and refresh token
-let isRefreshing = false;
-let failedQueue = [];
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-
-  failedQueue = [];
-};
-
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     const { setUser } = useAuthStore.getState();
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        // 🟢 لو فيه refresh شغال → استنى
-        return new Promise(function (resolve, reject) {
-          failedQueue.push({ resolve, reject });
-        })
-          .then(() => api(originalRequest))
-          .catch((err) => Promise.reject(err));
-      }
-
+    // لو 401 ولسه مجربناش ريفريش + مش الريكويست بتاع الريفريش نفسه
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/auth/refresh-token")
+    ) {
       originalRequest._retry = true;
-      isRefreshing = true;
 
       try {
-        // 🟢 جرب تعمل refresh
+        // جرب تعمل ريفريش
         await api.post("/auth/refresh-token");
 
-        // 🟢 هات بيانات اليوزر
-        const me = await api.get("/auth/me");
-        if (me.data) {
-          setUser(me.data);
-        }
-
-        processQueue(null); // ✅ فك الانتظار
+        // بعد النجاح عيد تشغيل الريكويست الأصلي
         return api(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError, null);
-
-        // 🛑 بدل clearAuth → نحط user = null في localStorage
+        // لو الريفريش نفسه فشل → مسح اليوزر
         setUser(null);
-
-        window.location.href = "/login";
         return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
       }
     }
 

@@ -106,18 +106,15 @@ const addFriends = async (req, res) => {
         message: "you can not add yourself as a freind",
       });
     }
-
     const isFriendBefor = await User.find({
       _id: currentUser._id,
       "friends.friend": friend._id,
     });
-    if (isFriendBefor) {
-      return res
-        .status(400)
-        .json({
-          status: httpStatus.FAIL,
-          message: "you added this friend before",
-        });
+    if (isFriendBefor.length > 0) {
+      return res.status(400).json({
+        status: httpStatus.FAIL,
+        message: "you added this friend before",
+      });
     }
     await User.updateOne(
       { _id: currentUser._id },
@@ -189,7 +186,7 @@ const removeFriend = async (req, res) => {
 
     await User.updateOne(
       { _id: currentUser._id },
-      { $pull: { friends: { friendId: friend._id } } }
+      { $pull: { friends: { friend: friend._id } } }
     );
 
     return res.status(201).json({
