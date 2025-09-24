@@ -1,6 +1,6 @@
 function FAQ() {
   return (
-    <section id="faq" class="faq">
+    <section id="faq" className="faq">
       <h2>FAQ</h2>
       <details>
         <summary>Is there a free plan?</summary>

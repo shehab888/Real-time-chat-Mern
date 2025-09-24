@@ -71,7 +71,13 @@ function Header() {
               >
                 🚫 Block List
               </div>
-              <div className="dropdown-item" onClick={handleLogout}>
+              <div
+                className="dropdown-item"
+                onClick={() => {
+                  handleLogout();
+                  setShowMenu(false);
+                }}
+              >
                 🚪 Logout
               </div>
             </div>

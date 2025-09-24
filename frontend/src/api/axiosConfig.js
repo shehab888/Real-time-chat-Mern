@@ -1,6 +1,5 @@
 import axios from "axios";
 import useAuthStore from "../store/useAuthStore";
-
 const api = axios.create({
   // baseURL: "https://real-time-chat-backend-production-6f5c.up.railway.app/api",
   baseURL: "http://localhost:5000/api",
@@ -25,6 +24,11 @@ api.interceptors.response.use(
         // جرب تعمل ريفريش
         await api.post("/auth/refresh-token");
 
+        const data = JSON.parse(localStorage.getItem("auth-storage"));
+        if (data) {
+          data.expiry = Date.now() + 1000 * 60 * 15;
+          localStorage.setItem("auth-storage", JSON.stringify(data));
+        }
         // بعد النجاح عيد تشغيل الريكويست الأصلي
         return api(originalRequest);
       } catch (refreshError) {

@@ -18,8 +18,44 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    if (!formData.username.trim()) return "Username is required";
+    if (!formData.email.trim()) return "Email is required";
+
+    if (!formData.password) return "Password is required";
+
+    // طول الباسورد
+    if (formData.password.length < 8)
+      return "Password must be at least 8 characters";
+
+    // حرف كابيتال
+    if (!/[A-Z]/.test(formData.password))
+      return "Password must contain at least one uppercase letter";
+
+    // حرف صغير
+    if (!/[a-z]/.test(formData.password))
+      return "Password must contain at least one lowercase letter";
+
+    // رقم
+    if (!/[0-9]/.test(formData.password))
+      return "Password must contain at least one number";
+
+    // رمز خاص
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(formData.password))
+      return "Password must contain at least one special character";
+
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -27,7 +63,6 @@ const Register = () => {
       const res = await register(formData);
       console.log("Response:", res.data);
 
-      // لو فيه verification step
       navigate("/verify-email");
     } catch (err) {
       console.error(err);
@@ -40,7 +75,8 @@ const Register = () => {
   return (
     <div className="container">
       <div className="login">
-        <form className="login-form" onSubmit={handleSubmit}>
+        {/* 👇 noValidate يمنع الـ browser من عمل validation لوحده */}
+        <form className="login-form" onSubmit={handleSubmit} noValidate>
           {/* Username */}
           <div className="form-group">
             <label className="form-label">Username</label>
@@ -49,7 +85,6 @@ const Register = () => {
               name="username"
               placeholder="Enter your username"
               className="inp username"
-              required
               value={formData.username}
               onChange={handleChange}
             />
@@ -63,7 +98,6 @@ const Register = () => {
               name="email"
               placeholder="Enter your email"
               className="inp email"
-              required
               value={formData.email}
               onChange={handleChange}
             />
@@ -77,7 +111,6 @@ const Register = () => {
               name="password"
               placeholder="Enter your password"
               className="inp password"
-              required
               value={formData.password}
               onChange={handleChange}
             />

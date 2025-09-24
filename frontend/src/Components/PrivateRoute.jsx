@@ -3,7 +3,7 @@ import useAuthStore from "../store/useAuthStore";
 
 const PrivateRoute = ({ children }) => {
   const { user } = useAuthStore();
-
+  
   if (!user) {
     return <Navigate to="/login" replace />;
   }
